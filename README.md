@@ -2,4 +2,5 @@
 
 una app de prueba
 
-Pendiente: subirlo a Heroku
+## Enlace a Heroku
+[Enlace](http://desolate-refuge-3022.herokuapp.com/)
