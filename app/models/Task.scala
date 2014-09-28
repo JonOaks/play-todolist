@@ -17,8 +17,8 @@ object Task {
       }
    }
 
-   def all(): List[Task] = DB.withConnection { implicit c =>
-      SQL("select * from task").as(task *)
+   def all(): List[Task] = DB.withConnection { 
+      implicit c => SQL("select * from task").as(task *)
    }
   
    def create(label: String) {
@@ -30,5 +30,8 @@ object Task {
       DB.withConnection { implicit c => SQL("delete from task where id = {id}").on('id -> id).executeUpdate()
       }
    }
-  
+
+   def tarea(id: Long): Task = DB.withConnection{
+      implicit c => SQL("select * from task where id = {id}").on('id -> id).as(task.single)
+   }
 }
