@@ -25,15 +25,17 @@ object Application extends Controller {
    def tasks = Action {
       Ok(views.html.index(Task.all(), taskForm))
    }
-   def newTask = Action { implicit request =>
-      taskForm.bindFromRequest.fold(
+
+   def newTask = Action { 
+      implicit request => taskForm.bindFromRequest.fold(
          errors => BadRequest(views.html.index(Task.all(), errors)),
          label => {
-            Task.create(label)
-            Redirect(routes.Application.tasks)
+            val task = Task.create(label)
+            Created(Json.toJson(task))
          }
       )
    }
+
    def deleteTask(id: Long) = Action {
       Task.delete(id)
       Redirect(routes.Application.tasks)
@@ -46,11 +48,10 @@ object Application extends Controller {
          )
    }
 
-   def consultaTarea(id: Long) = Action {
-      try{
-         Ok(Json.toJson(Task.tarea(id)))
-      } catch {
-         case e: RuntimeException => NotFound(html).as("text/html")
+   def getTask(id: Long) = Action {
+      Task.task(id) match {
+         case None => NotFound(html).as("text/html")
+         case Some(t) => Ok(Json.toJson(t))
       }
    }
 }

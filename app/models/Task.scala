@@ -21,9 +21,12 @@ object Task {
       implicit c => SQL("select * from task").as(task *)
    }
   
-   def create(label: String) {
-      DB.withConnection { implicit c => SQL("insert into task (label) values ({label})").on('label -> label).executeUpdate()
+   def create(label: String): Task = {
+      var newid = 0L
+      DB.withConnection { implicit c => newid = SQL("insert into task (label) values ({label})").on('label -> label).executeInsert().get
       }
+      
+      return Task(newid,label)
    }
 
    def delete(id: Long) {
@@ -31,7 +34,7 @@ object Task {
       }
    }
 
-   def tarea(id: Long): Task = DB.withConnection{
-      implicit c => SQL("select * from task where id = {id}").on('id -> id).as(task.single)
+   def task(id: Long): Option[Task] = DB.withConnection{
+      implicit c => SQL("select * from task where id = {id}").on('id -> id).as(task.singleOpt)
    }
 }
