@@ -6,6 +6,9 @@ import anorm.SqlParser._
 import play.api.db._
 import play.api.Play.current
 
+import play.api.libs.json._
+import play.api.libs.functional.syntax._
+
 case class Task(id: Long, label: String)
 
 object Task {
@@ -16,6 +19,18 @@ object Task {
          case id~label => Task(id, label)
       }
    }
+
+   /*implicit val taskWrites = new Writes[Task] {
+      def writes(task: Task) = Json.obj (
+         "id" -> task.id,
+         "label" -> task.label
+         )
+   }*/
+
+   implicit val taskWrites: Writes[Task] = (
+      (JsPath \ "id").write[Long] and
+      (JsPath \ "label").write[String]
+   )(unlift(Task.unapply))
 
    def all(): List[Task] = DB.withConnection { 
       implicit c => SQL("select * from task").as(task *)
