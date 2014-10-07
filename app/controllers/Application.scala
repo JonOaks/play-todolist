@@ -13,7 +13,7 @@ import play.api.libs.functional.syntax._
 
 object Application extends Controller {
 
-   val html: String = "<html><head><style>body {background-color: #daecee;}#error {position: absolute;top: 50%;left: 50%;margin-top: -303px;margin-left: -303px;}</style></head><body><div id=\"error\"><img src=\"http://huwshimi.com/wp-content/themes/huwshimi/images/404.png\" alt=\"404 page not found\" id=\"error404-image\"></div></body></html>"
+   val html_404: String = "<html><head><style>body {background-color: #daecee;}#error {position: absolute;top: 50%;left: 50%;margin-top: -303px;margin-left: -303px;}</style></head><body><div id=\"error\"><img src=\"http://huwshimi.com/wp-content/themes/huwshimi/images/404.png\" alt=\"404 page not found\" id=\"error404-image\"></div></body></html>"
 
    def index = Action {
       Redirect(routes.Application.tasks)
@@ -40,14 +40,20 @@ object Application extends Controller {
 
    def getTask(id: Long) = Action {
       Task.task(id) match {
-         case None => NotFound(html).as("text/html")
+         case None => NotFound(html_404).as("text/html")
          case Some(t) => Ok(Json.toJson(t))
       }
    }
 
    def deleteTask(id: Long) = Action {
-      Task.delete(id)
-      Redirect(routes.Application.tasks)
+      if(Task.delete(id) > 0)
+      {
+         Ok
+      }
+      else
+      {
+         NotFound(html_404).as("text/html")
+      }
    }
 }
 

@@ -3,13 +3,14 @@ Práctica 1
 =========
 
 En esta primera iteración vamos a hacer una primera iteración en la que convertiremos la aplicación en una API REST que trabaja con objetos JSON y añadiremos algunos datos adicionales que las tareas gestiona la API: usuario que crea la tarea y fecha opcional de finalización.
+
 Feature 1
 ----
 
 ####Consulta de una tarea
 Devuelve la representación JSON de la tarea cuyo identificador se pasa por la URI
 ```
-/tasks/id
+GET /tasks/id
 ```
 
 ######Explicación
@@ -19,7 +20,7 @@ GET /tasks/$id<[0-9]+>  controllers.Application.getTask(id: Long)
 ```
 Y definido nuestro propio conversor implícito:
 ```
-   implicit val json = new Writes[Task] {
+   implicit val taskWrites = new Writes[Task] {
       def writes(task: Task) = Json.obj (
          "id" -> task.id,
          "label" -> task.label
@@ -46,7 +47,7 @@ Y la query correspondiente a la consulta de una tarea:
 Recibe el dato de la nueva tarea a crear (su descripción) en un formulario. Devuelve un JSON con la descripción de la nueva tarea creada y el código HTTP 201 (CREATED).
 
 ```
-/tasks
+POST /tasks
 ```
 
 ######Explicación
@@ -80,7 +81,7 @@ como el método ***newTask*** de la clase ***Application*** para que devuelva el
 ####Listado de tareas
 Devuelve una colección JSON con la lista de tareas
 ```
-/tasks
+GET /tasks
 ```
 Respuesta (ejemplo en el que tenemos dos tareas ya creadas):
 ```
@@ -88,7 +89,7 @@ Respuesta (ejemplo en el que tenemos dos tareas ya creadas):
 ```
 
 ######Explicación
-Ya disponemos de la ruta correspondiente para resolver esta petición (fue añadida en la práctica anterior) y, por lo tanto, lo que hemos hecho ha sido modificar nuestro conversor implícito usando el _patrón combinator_ para poder devolver, además de la representación JSON de una sola tarea, una colección JSON
+Ya disponemos de la ruta correspondiente para resolver esta petición (fue añadida en la práctica anterior) y, por lo tanto, y aún pudiendo hacer uso del conversor implícito visto anteriormente, lo que hemos hecho ha sido modificar nuestro conversor implícito usando el _patrón combinator_ por mero interés educativo.
 ```
    implicit val taskWrites: Writes[Task] = (
       (JsPath \ "id").write[Long] and
@@ -100,5 +101,30 @@ y el método ***tasks***, sustituyendo el formulario por la respuesta esperada e
    def tasks = Action {
       val json = Json.toJson(Task.all())
       Ok(json)
+   }
+```
+
+####Borrado de una tarea
+Borra una tarea cuyo identificador se pasa en la URI. Si la tarea no existe se debe devolver un código HTTP 404 (NOT FOUND).
+```
+DELETE /tasks/id
+```
+
+######Explicación
+Hemos modificado la ruta haciendo caso a la nueva especificación quedando esta misma del siguiente modo:
+```
+DELETE   /tasks/:id                 controllers.Application.deleteTask(id: Long)
+```
+Y además también hemos modificado el código del método ***deleteTask*** de la clase ***Application*** (hemos hecho que el método ***delete*** de la clase ***Task*** devuelva un long para poder comprobar si se ha encontrado y borrado la tarea)
+```
+   def deleteTask(id: Long) = Action {
+      if(Task.delete(id) > 0)
+      {
+         Ok
+      }
+      else
+      {
+         NotFound(html_404).as("text/html")
+      }
    }
 ```
