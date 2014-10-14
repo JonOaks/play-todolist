@@ -33,12 +33,12 @@ object Task {
    )(unlift(Task.unapply))
 
    def all(): List[Task] = DB.withConnection { 
-      implicit c => SQL("select * from task").as(task *)
+      implicit c => SQL("select * from task where author_login = 'McQuack' ").as(task *)
    }
   
    def create(label: String): Task = {
       var newid = 0L
-      DB.withConnection { implicit c => newid = SQL("insert into task (label) values ({label})").on('label -> label).executeInsert().get
+      DB.withConnection { implicit c => newid = SQL("insert into task (label,author_login) values ({label},'McQuack')").on('label -> label).executeInsert().get
       }
       
       return Task(newid,label)
@@ -51,5 +51,17 @@ object Task {
 
    def task(id: Long): Option[Task] = DB.withConnection{
       implicit c => SQL("select * from task where id = {id}").on('id -> id).as(task.singleOpt)
+   }
+
+   def tasks(login: String): List[Task] = DB.withConnection{
+      implicit c => SQL("select * from task where author_login = {login}").on('login -> login).as(task *)
+   }
+
+   def createWithUser(label: String, login: String): Task = {
+      var newid = 0L
+      DB.withConnection {implicit c => newid = SQL("insert into task (label,author_login) values ({label},{login})").on('label -> label).on('login -> login).executeInsert().get
+      }
+      
+      return Task(newid,label)
    }
 }

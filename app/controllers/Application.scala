@@ -7,6 +7,7 @@ import play.api.data._
 import play.api.data.Forms._
 
 import models.Task
+import models.User
 
 import play.api.libs.json._
 import play.api.libs.functional.syntax._
@@ -55,6 +56,32 @@ object Application extends Controller {
          NotFound(html_404).as("text/html")
       }
    }
+
+   def getTasksUser(login: String) = Action {
+      User.existUser(login) match {
+         case None => NotFound(html_404).as("text/html")
+         case Some(t) => {
+            val json = Json.toJson(Task.tasks(login))
+            Ok(json)
+         }
+      }
+   }
+
+   def newTaskUser(login: String) = Action {
+      implicit request => taskForm.bindFromRequest.fold(
+         errors => BadRequest(views.html.index(Task.all(), errors)),
+         label => {
+            User.existUser(login) match {
+               case None => NotFound(html_404).as("text/html")
+               case Some(t) => {
+                  val task = Task.createWithUser(label,login)
+                  Created(Json.toJson(task))
+               }
+            }
+         }
+      )
+   }
+
 }
 
 
