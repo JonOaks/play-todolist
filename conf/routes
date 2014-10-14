@@ -11,5 +11,8 @@ POST     /tasks                     controllers.Application.newTask
 DELETE   /tasks/:id                 controllers.Application.deleteTask(id: Long)
 GET      /tasks/$id<[0-9]+>         controllers.Application.getTask(id: Long)
 
+GET      /:login/tasks              controllers.Application.getTasksUser(login: String)
+POST     /:login/tasks              controllers.Application.newTaskUser(login: String)
+
 # Map static resources from the /public folder to the /assets URL path
 GET     /assets/*file               controllers.Assets.at(path="/public", file)

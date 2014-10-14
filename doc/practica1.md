@@ -128,3 +128,50 @@ Y además también hemos modificado el código del método ***deleteTask*** de l
       }
    }
 ```
+
+Feature 2
+----
+Ahora podemos, tanto listar las tareas asociadas a un usuario concreto
+```
+GET      /:login/tasks              controllers.Application.getTasksUser(login: String)
+```
+como añadir una nueva
+```
+POST     /:login/tasks              controllers.Application.newTaskUser(login: String)
+```
+
+######Explicación
+
+En esta segunda feature hemos añadido el login referente al usuario creador de la tarea. Primeramente hemos añadido una nueva evolución (2.sql) en la que hemos modificado la tabla task y hemos añadido una nueva tabla para almacenar el login de los usuarios:
+```
+# Add User
+ 
+# --- !Ups
+
+ALTER TABLE task ADD author_login VARCHAR(255);
+
+CREATE SEQUENCE task_user_id_seq;
+CREATE TABLE task_user (
+      id integer NOT NULL DEFAULT nextval('task_user_id_seq'),
+      login varchar(255) NOT NULL,
+      constraint pk_task_user PRIMARY KEY (login)
+
+);
+
+ALTER TABLE task ADD constraint fk_task_task_user_1 FOREIGN KEY (author_login) REFERENCES task_user (login) ON DELETE restrict ON UPDATE restrict;
+
+INSERT into task_user (login) values ('McQuack');
+INSERT into task_user (login) values ('Jonatan');
+
+INSERT into task (label,author_login) values ('Launchpad','McQuack');
+INSERT into task (label,author_login) values ('Threshold','McQuack');
+
+# --- !Downs
+ALTER TABLE task DROP author_login;
+
+DROP TABLE task_user;
+DROP SEQUENCE task_user_id_seq;
+```
+Hemos insertado dos usuarios, McQuack (identificador usuario anónimo)  y Jonatan, así como algunas tareas asociadas al usuario identificado como anónimo.
+
+Seguidamente hemos creado dos métodos nuevos en modelo (***getTasks*** y ***newTasksUser***) y controlador(***tasks*** y ***createWithUser***) para añadir las dos nuevas funcionalidades y modificado las funciones anteriores para que sean compatibles con la nueva, es decir, apra que sea compatible con la funcionalidad "Usuario creador de la tabla".

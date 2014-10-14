@@ -5,9 +5,10 @@
 CREATE SEQUENCE task_id_seq;
 CREATE TABLE task (
       id integer NOT NULL DEFAULT nextval('task_id_seq'),
-      label varchar(255)
+      label varchar(255),
+      constraint pk_task PRIMARY KEY (id)
 );
- 
+
 # --- !Downs
  
 DROP TABLE task;
