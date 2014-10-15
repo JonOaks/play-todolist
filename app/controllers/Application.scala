@@ -12,6 +12,11 @@ import models.User
 import play.api.libs.json._
 import play.api.libs.functional.syntax._
 
+import java.util.Date
+import java.text.SimpleDateFormat
+import java.util.regex.Pattern
+import java.util.regex.Matcher
+
 object Application extends Controller {
 
    val html_404: String = "<html><head><style>body {background-color: #daecee;}#error {position: absolute;top: 50%;left: 50%;margin-top: -303px;margin-left: -303px;}</style></head><body><div id=\"error\"><img src=\"http://huwshimi.com/wp-content/themes/huwshimi/images/404.png\" alt=\"404 page not found\" id=\"error404-image\"></div></body></html>"
@@ -21,7 +26,11 @@ object Application extends Controller {
    }
 
    val taskForm = Form(
-      "label" -> nonEmptyText
+      mapping(
+      "id" -> ignored(0L),
+      "label" -> nonEmptyText,
+      "deadline" -> optional(date("dd-MM-yyyy"))
+      )(Task.apply)(Task.unapply)
    )
 
    def tasks = Action {
@@ -31,10 +40,18 @@ object Application extends Controller {
 
    def newTask = Action { 
       implicit request => taskForm.bindFromRequest.fold(
-         errors => BadRequest(views.html.index(Task.all(), errors)),
-         label => {
-            val task = Task.create(label)
-            Created(Json.toJson(task))
+         errors => BadRequest,
+         task => {
+            task.deadline match {
+               case None => {
+                  val task_without_date = Task.create(task.label)
+                  Created(Json.toJson(task_without_date))
+               }
+               case Some(t) => {
+                  val task_with_date = Task.createWithDate(task.label,task.deadline)
+                  Created(Json.toJson(task_with_date))
+               }
+            }
          }
       )
    }
@@ -69,19 +86,76 @@ object Application extends Controller {
 
    def newTaskUser(login: String) = Action {
       implicit request => taskForm.bindFromRequest.fold(
-         errors => BadRequest(views.html.index(Task.all(), errors)),
-         label => {
+         errors => BadRequest,
+         task => {
             User.existUser(login) match {
                case None => NotFound(html_404).as("text/html")
                case Some(t) => {
-                  val task = Task.createWithUser(label,login)
-                  Created(Json.toJson(task))
+                  task.deadline match {
+                     case None => {
+                        val task_without_date = Task.createWithUser(task.label,login)
+                        Created(Json.toJson(task_without_date))
+                     }
+                     case Some(t) => {
+                        val task_with_date = Task.createWithUserAndDate(task.label,login,task.deadline)
+                        Created(Json.toJson(task_with_date))
+                     }
+                  }
                }
             }
          }
       )
    }
+   
+   def okDate(date: String): Boolean = {
+      val pat = Pattern compile("(0[1-9]|[12][0-9]|3[01])[- /.](0[1-9]|1[012])[- /.](19|20)[0-9][0-9]")
+      val mat = pat.matcher(date)
+      if(mat.matches())
+      {
+         true
+      }
+      else
+      {
+         false
+      }
+   }
 
+   def deleteTasksSameDate(date_to_delete: String) = Action {
+      if(okDate(date_to_delete))
+      {
+         val a = new SimpleDateFormat("dd-MM-yyyy")
+         val b: Date = a.parse(date_to_delete)
+         val to_delete: Option[Date] = Some(b)
+         
+         Task.deleteTasksSameDate(to_delete)
+         Ok
+      }
+      else
+      {
+         BadRequest
+      }
+   }
+
+   def deleteTasksUserBeforeDate(login: String, date_to_delete: String) = Action {
+      if(okDate(date_to_delete))
+      {
+         User.existUser(login) match {
+            case None => NotFound(html_404).as("text/html")
+            case Some(t) => {
+               val a = new SimpleDateFormat("dd-MM-yyyy")
+               val b: Date = a.parse(date_to_delete)
+               val to_delete: Option[Date] = Some(b)
+
+               Task.deleteTasksUserBeforeDate(login, to_delete)
+               Ok
+            }
+         }
+      }
+      else
+      {
+         BadRequest
+      }
+   }
 }
 
 
