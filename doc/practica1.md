@@ -176,3 +176,54 @@ DROP SEQUENCE task_user_id_seq;
 Hemos insertado dos usuarios, McQuack (identificador usuario anónimo)  y Jonatan, así como algunas tareas asociadas al usuario identificado como anónimo.
 
 Seguidamente hemos creado dos métodos nuevos en modelo (***getTasks*** y ***newTasksUser***) y controlador(***tasks*** y ***createWithUser***) para añadir las dos nuevas funcionalidades y modificado las funciones anteriores para que sean compatibles con la nueva, es decir, apra que sea compatible con la funcionalidad "Usuario creador de la tabla".
+
+Feature 3
+----
+Gracias a los cambios realizados ahora podemos, o no, añadir fechas de terminación en las tareas. Además hemos añadidod dos nuevas funcionalidades:
+
+- Dada una fecha concreta se borraran todas las tareas con fecha de terminación igual
+
+```
+GET      /tasks/:date               controllers.Application.deleteTasksSameDate(date: String)
+
+```
+
+- Dado un determinado usuario y una fecha se borraran todas las tareas del usuario mencionado con fecha de terminación anterior a la fecha dada
+
+```
+GET      /:login/tasks/:date        controllers.Application.deleteTasksUserBeforeDate(login: String, date: String)
+```
+
+######Explicación
+
+Hemos añadido las dos rutas anteriores en nuestro archivo de rutas e implementado los métodos correspodientes en el controlador y, por consiguiente, dos nuevos métodos en el modelo.
+Además hemos implementado un nuevo método en el controlador para comprobar si lo que se nos pasa es una fecha correcta mediante el uso de expreiones regulares
+```
+   def okDate(date: String): Boolean = {
+      val pat = Pattern compile("(0[1-9]|[12][0-9]|3[01])[- /.](0[1-9]|1[012])[- /.](19|20)[0-9][0-9]")
+      val mat = pat.matcher(date)
+      if(mat.matches())
+      {
+         true
+      }
+      else
+      {
+         false
+      }
+   }
+```
+
+Lo primero que hacemos en los nuevos métodos (las dos nuevas funcionalidades) del controlador es realizar esta comprobación. Si la fecha es correcta, la parseamos de la siguiente forma (esto lo hacemos para disponer la fecha de tal forma que no haya problemas de tipos):
+```
+      if(okDate(date_to_delete))
+      {
+         val a = new SimpleDateFormat("dd-MM-yyyy")
+         val b: Date = a.parse(date_to_delete)
+         val to_delete: Option[Date] = Some(b)
+         
+         .
+         .
+         .
+      }
+```
+En el caso de que la fecha introducida no sea correcta devolvemos un error HTTP (***BadRequest***).
