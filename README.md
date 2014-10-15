@@ -1,6 +1,4 @@
 # Play Todolist
 
-una app de prueba
-
 ## Enlace a Heroku
-[Enlace](http://desolate-refuge-3022.herokuapp.com/)
+[Enlace](http://secret-earth-8883.herokuapp.com/)
