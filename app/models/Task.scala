@@ -41,8 +41,6 @@ object Task {
       )
    }
 
-   //def format(ah: Option[Date]): String = 
-
    /*implicit val taskWrites: Writes[Task] = (
       (JsPath \ "id").write[Long] and
       (JsPath \ "label").write[String] and
@@ -97,4 +95,13 @@ object Task {
       
       return Task(newid,label,deadline)
    }
+
+   def deleteTasksSameDate(date_to_delete: Option[Date]): Long = {
+      DB.withConnection {implicit c => SQL("delete from task where deadline = {date_to_delete}").on('date_to_delete -> date_to_delete).executeUpdate()}
+   }
+
+
+   def deleteTasksUserBeforeDate(login: String, date_to_delete: Option[Date]): Long = {
+      DB.withConnection {implicit c => SQL("delete from task where deadline < {date_to_delete} and author_login  = {login}").on('date_to_delete -> date_to_delete).on('login -> login)executeUpdate()}
+   }   
 }

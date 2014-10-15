@@ -14,6 +14,8 @@ import play.api.libs.functional.syntax._
 
 import java.util.Date
 import java.text.SimpleDateFormat
+import java.util.regex.Pattern
+import java.util.regex.Matcher
 
 object Application extends Controller {
 
@@ -105,6 +107,55 @@ object Application extends Controller {
       )
    }
    
+   def okDate(date: String): Boolean = {
+      val pat = Pattern compile("(0[1-9]|[12][0-9]|3[01])[- /.](0[1-9]|1[012])[- /.](19|20)[0-9][0-9]")
+      val mat = pat.matcher(date)
+      if(mat.matches())
+      {
+         true
+      }
+      else
+      {
+         false
+      }
+   }
+
+   def deleteTasksSameDate(date_to_delete: String) = Action {
+      if(okDate(date_to_delete))
+      {
+         val a = new SimpleDateFormat("dd-MM-yyyy")
+         val b: Date = a.parse(date_to_delete)
+         val to_delete: Option[Date] = Some(b)
+         
+         Task.deleteTasksSameDate(to_delete)
+         Ok
+      }
+      else
+      {
+         BadRequest
+      }
+   }
+
+   def deleteTasksUserBeforeDate(login: String, date_to_delete: String) = Action {
+      if(okDate(date_to_delete))
+      {
+         User.existUser(login) match {
+            case None => NotFound(html_404).as("text/html")
+            case Some(t) => {
+               val a = new SimpleDateFormat("dd-MM-yyyy")
+               val b: Date = a.parse(date_to_delete)
+               val to_delete: Option[Date] = Some(b)
+
+               Task.deleteTasksUserBeforeDate(login, to_delete)
+               Ok
+            }
+         }
+      }
+      else
+      {
+         BadRequest
+      }
+   }
 }
 
 
