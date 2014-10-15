@@ -3,6 +3,7 @@
 # --- !Ups
 
 ALTER TABLE task ADD author_login VARCHAR(255);
+ALTER TABLE task ADD deadline DATE;
 
 CREATE SEQUENCE task_user_id_seq;
 CREATE TABLE task_user (
@@ -22,6 +23,7 @@ INSERT into task (label,author_login) values ('Threshold','McQuack');
 
 # --- !Downs
 ALTER TABLE task DROP author_login;
+ALTER TABLE task DROP deadline;
 
 DROP TABLE task_user;
 DROP SEQUENCE task_user_id_seq;
