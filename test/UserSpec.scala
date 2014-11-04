@@ -11,7 +11,7 @@ import models.User
 
 class UserSpec extends Specification {
    "Models" should {
-      "find users" in {
+      "find user" in {
          running(FakeApplication()) {
             // La BD contiene dos usarios ("McQuack" y "Jonatan")
             // Comprobamos que existe uno de estos dos
@@ -19,7 +19,7 @@ class UserSpec extends Specification {
             user must beSome
          }
       }
-      "not find users" in {
+      "not find user" in {
          running(FakeApplication()) {
             val user = User.existUser("Prueba")
             user must beNone
