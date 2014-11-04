@@ -23,6 +23,13 @@ class TaskSpec extends Specification {
             val task = Task.task(3)
             task must beNone
          }
-      }      
+      }
+
+      "create task without user and date" in {
+         running(FakeApplication()){
+            val task = Task.create("")
+            task.label must equalTo("")
+         }
+      }
    }
 }
