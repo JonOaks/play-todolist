@@ -9,7 +9,11 @@ import play.api.test.Helpers._
 
 import models.Task
 
+import java.util.Date
+
 class TaskSpec extends Specification {
+   val correctDate:Option[Date] = Some(new Date)
+
    "Tasks" should{
       "return task" in {
          running(FakeApplication()){
@@ -29,6 +33,15 @@ class TaskSpec extends Specification {
          running(FakeApplication()){
             val task = Task.create("")
             task.label must equalTo("")
+         }
+      }
+
+      "create task with a correct date" in {
+         running(FakeApplication()){
+
+            val task = Task.createWithDate("",correctDate)
+            task.label must equalTo("")
+            task.deadline must equalTo(correctDate)
          }
       }
    }
