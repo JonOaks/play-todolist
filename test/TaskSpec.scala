@@ -17,5 +17,12 @@ class TaskSpec extends Specification {
             task must beSome
          }
       }
+
+      "not return task" in {
+         running(FakeApplication()){
+            val task = Task.task(3)
+            task must beNone
+         }
+      }      
    }
 }
