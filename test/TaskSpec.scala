@@ -102,5 +102,15 @@ class TaskSpec extends Specification {
             tasks.length must equalTo(0)
          }
       }
+
+      "create task with an existent user" in{
+         running(FakeApplication()){
+            //Usuario existente
+            //Devuelve una tarea con un newid autoincrementado, label = "" y una fecha vacia
+            val task = Task.createWithUser("","McQuack")
+            task.label must equalTo("")
+            task.deadline must beNone
+         }
+      }
    }
 }
