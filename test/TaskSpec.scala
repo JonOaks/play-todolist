@@ -86,5 +86,13 @@ class TaskSpec extends Specification {
             success must equalTo(0)
          }
       }
+
+      "return user's tasks" in {
+         running(FakeApplication()){
+            //Usuario existente con dos tareas asociadas
+            val tasks:List[Task] = Task.tasks("McQuack")
+            tasks.length must equalTo(2)
+         }
+      }
    }
 }
