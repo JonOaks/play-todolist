@@ -94,5 +94,13 @@ class TaskSpec extends Specification {
             tasks.length must equalTo(2)
          }
       }
+
+      "not return user's tasks" in {
+         running(FakeApplication()){
+            //Usuario no existente
+            val tasks:List[Task] = Task.tasks("Prueba")
+            tasks.length must equalTo(0)
+         }
+      }
    }
 }
