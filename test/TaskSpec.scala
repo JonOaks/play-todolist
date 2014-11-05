@@ -78,5 +78,13 @@ class TaskSpec extends Specification {
             success must equalTo(1)
          }
       }
+
+      "not delete task" in {
+         running(FakeApplication()){
+            //Existen dos tareas en la base de datos, borramos la primera
+            val success = Task.delete(3)
+            success must equalTo(0)
+         }
+      }
    }
 }
