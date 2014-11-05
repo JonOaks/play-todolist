@@ -21,6 +21,8 @@ INSERT into task_user (login) values ('Jonatan');
 INSERT into task (label,author_login) values ('Launchpad','McQuack');
 INSERT into task (label,author_login) values ('Threshold','McQuack');
 
+INSERT into task (label,author_login,deadline) values ('Garbage','McQuack','2014-11-05')
+
 # --- !Downs
 ALTER TABLE task DROP author_login;
 ALTER TABLE task DROP deadline;
