@@ -22,6 +22,13 @@ class TaskSpec extends Specification {
    val incorrectDate: Option[Date] = Some(c)
 
    "Tasks" should{
+      "return all tasks" in {
+         running(FakeApplication()){
+            val tasks:List[Task] = Task.all()
+            tasks.length must equalTo(2)
+         }
+      }
+
       "return task" in {
          running(FakeApplication()){
             val task = Task.task(1)
