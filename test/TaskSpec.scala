@@ -148,7 +148,7 @@ class TaskSpec extends Specification {
          }
       }
 
-      "try to delete tasks of one date with not the same date" in {
+      "try to delete tasks with a date with not the same date" in {
          running(FakeApplication(additionalConfiguration = inMemoryDatabase())){
             Task.deleteTasksSameDate(correctDate) must equalTo(0)
          }
@@ -163,6 +163,12 @@ class TaskSpec extends Specification {
       "try to delete tasks with a previous date of a nonexistent user" in {
          running(FakeApplication(additionalConfiguration = inMemoryDatabase())){
             Task.deleteTasksUserBeforeDate("Fake_user",beforeDate) must equalTo(0)
+         }
+      }
+
+      "try to delete tasks with a date with a previous date" in {
+         running(FakeApplication(additionalConfiguration = inMemoryDatabase())){
+            Task.deleteTasksUserBeforeDate("Fake_user",correctDate) must equalTo(0)
          }
       }
    }
