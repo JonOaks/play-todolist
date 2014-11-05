@@ -20,15 +20,17 @@ class TaskSpec extends Specification {
    val a = new SimpleDateFormat("dd-MM-yyyy")
    val b: Date = a.parse("14-10-1990")
    val c: Date = a.parse("22-10-2014112133")
+   val d: Date = a.parse("05-11-2014")
    val correctDate: Option[Date] = Some(b)
    val incorrectDate: Option[Date] = Some(c)
+   val sameDate: Option[Date] = Some(d)
 
    "Tasks" should{
       "return all tasks" in {
          running(FakeApplication(additionalConfiguration = inMemoryDatabase())){
             val tasks:List[Task] = Task.all()
             //Como existen dos tareas, la longitud de la lista debe ser 2
-            tasks.length must equalTo(2)
+            tasks.length must equalTo(3)
          }
       }
 
@@ -41,7 +43,7 @@ class TaskSpec extends Specification {
 
       "not return task" in {
          running(FakeApplication(additionalConfiguration = inMemoryDatabase())){
-            val task = Task.task(3)
+            val task = Task.task(4)
             task must beNone
          }
       }
@@ -84,7 +86,7 @@ class TaskSpec extends Specification {
       "not delete task" in {
          running(FakeApplication(additionalConfiguration = inMemoryDatabase())){
             //Existen dos tareas en la base de datos, borramos la primera
-            val success = Task.delete(3)
+            val success = Task.delete(4)
             success must equalTo(0)
          }
       }
@@ -93,7 +95,7 @@ class TaskSpec extends Specification {
          running(FakeApplication(additionalConfiguration = inMemoryDatabase())){
             //Usuario existente con dos tareas asociadas
             val tasks:List[Task] = Task.tasks("McQuack")
-            tasks.length must equalTo(2)
+            tasks.length must equalTo(3)
          }
       }
 
@@ -105,7 +107,7 @@ class TaskSpec extends Specification {
          }
       }
 
-      "create task with an existent user" in{
+      "create task with an existent user" in {
          running(FakeApplication(additionalConfiguration = inMemoryDatabase())){
             //Usuario existente
             //Devuelve una tarea con un newid autoincrementado, label = "tarea" y una fecha vacia
@@ -115,14 +117,14 @@ class TaskSpec extends Specification {
          }
       }
 
-      "throw JbdcSQLException in a task creation with a nonexistent user" in{
+      "throw JbdcSQLException in a task creation with a nonexistent user" in {
          running(FakeApplication(additionalConfiguration = inMemoryDatabase())){
             //Usuario no existente
             Task.createWithUser("task","Fake_user") must throwA[JdbcSQLException]
          }
       }
 
-      "create task with date and an existent user" in{
+      "create task with date and an existent user" in {
          running(FakeApplication(additionalConfiguration = inMemoryDatabase())){
             //Usuario no existente
             val task = Task.createWithUserAndDate("task","McQuack",correctDate)
@@ -131,10 +133,16 @@ class TaskSpec extends Specification {
          }
       }
 
-      "throw JbdcSQLException in a task creation with date and a nonexistent user" in{
+      "throw JbdcSQLException in a task creation with date and a nonexistent user" in {
          running(FakeApplication(additionalConfiguration = inMemoryDatabase())){
             //Usuario no existente
             Task.createWithUserAndDate("task","Fake_user",correctDate) must throwA[JdbcSQLException]
+         }
+      }
+
+      "delete tasks same date" in {
+         running(FakeApplication(additionalConfiguration = inMemoryDatabase())){
+            Task.deleteTasksSameDate(sameDate) must equalTo(1)
          }
       }
    }
