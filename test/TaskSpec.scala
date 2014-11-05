@@ -118,7 +118,16 @@ class TaskSpec extends Specification {
       "throw JbdcSQLException in a task's creation with a nonexistent user" in{
          running(FakeApplication(additionalConfiguration = inMemoryDatabase())){
             //Usuario no existente
-            Task.createWithUser("","Fake_user") must throwA[JdbcSQLException]
+            Task.createWithUser("task","Fake_user") must throwA[JdbcSQLException]
+         }
+      }
+
+      "create task with date and an existent user" in{
+         running(FakeApplication(additionalConfiguration = inMemoryDatabase())){
+            //Usuario no existente
+            val task = Task.createWithUserAndDate("task","McQuack",correctDate)
+            task.label must equalTo("task")
+            task.deadline must equalTo(correctDate)
          }
       }
    }
