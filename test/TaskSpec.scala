@@ -145,5 +145,11 @@ class TaskSpec extends Specification {
             Task.deleteTasksSameDate(sameDate) must equalTo(1)
          }
       }
+
+      "try to delete tasks same date with not same date" in {
+         running(FakeApplication(additionalConfiguration = inMemoryDatabase())){
+            Task.deleteTasksSameDate(correctDate) must equalTo(0)
+         }
+      }
    }
 }
