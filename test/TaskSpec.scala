@@ -25,6 +25,7 @@ class TaskSpec extends Specification {
       "return all tasks" in {
          running(FakeApplication()){
             val tasks:List[Task] = Task.all()
+            //Como existen dos tareas, la longitud de la lista debe ser 2
             tasks.length must equalTo(2)
          }
       }
@@ -64,7 +65,17 @@ class TaskSpec extends Specification {
 
             val task = Task.createWithDate("",incorrectDate)
             task.label must equalTo("")
+            //La inserción en la base de datos no se lleva a cabo pero si se instancia la clase Task
+            //con dicha fecha
             task.deadline must equalTo(incorrectDate)
+         }
+      }
+
+      "delete task" in {
+         running(FakeApplication()){
+            //Existen dos tareas en la base de datos, borramos la primera
+            val success = Task.delete(1)
+            success must equalTo(1)
          }
       }
    }
