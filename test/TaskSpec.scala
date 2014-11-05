@@ -21,9 +21,11 @@ class TaskSpec extends Specification {
    val b: Date = a.parse("14-10-1990")
    val c: Date = a.parse("22-10-2014112133")
    val d: Date = a.parse("05-11-2014")
+   val e: Date = a.parse("06-11-2014")
    val correctDate: Option[Date] = Some(b)
    val incorrectDate: Option[Date] = Some(c)
    val sameDate: Option[Date] = Some(d)
+   val beforeDate: Option[Date] = Some(e)
 
    "Tasks" should{
       "return all tasks" in {
@@ -146,9 +148,15 @@ class TaskSpec extends Specification {
          }
       }
 
-      "try to delete tasks same date with not same date" in {
+      "try to delete tasks of one date with not the same date" in {
          running(FakeApplication(additionalConfiguration = inMemoryDatabase())){
             Task.deleteTasksSameDate(correctDate) must equalTo(0)
+         }
+      }
+
+      "delete tasks with a previous date of an existent user" in {
+         running(FakeApplication(additionalConfiguration = inMemoryDatabase())){
+            Task.deleteTasksUserBeforeDate("McQuack",beforeDate) must equalTo(1)
          }
       }
    }
