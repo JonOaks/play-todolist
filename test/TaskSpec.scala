@@ -31,7 +31,7 @@ class TaskSpec extends Specification {
       "return all tasks" in {
          running(FakeApplication(additionalConfiguration = inMemoryDatabase())){
             val tasks:List[Task] = Task.all()
-            //Como existen dos tareas, la longitud de la lista debe ser 2
+            //Como existen tres tareas, la longitud de la lista debe ser 3
             tasks.length must equalTo(3)
          }
       }
@@ -79,7 +79,7 @@ class TaskSpec extends Specification {
 
       "delete task" in {
          running(FakeApplication(additionalConfiguration = inMemoryDatabase())){
-            //Existen dos tareas en la base de datos, borramos la primera
+            //Existen tres tareas en la base de datos, borramos la primera
             val success = Task.delete(1)
             success must equalTo(1)
          }
@@ -87,7 +87,7 @@ class TaskSpec extends Specification {
 
       "not delete task" in {
          running(FakeApplication(additionalConfiguration = inMemoryDatabase())){
-            //Existen dos tareas en la base de datos, borramos la primera
+            //Existen tres tareas en la base de datos, intentamos borrar la última
             val success = Task.delete(4)
             success must equalTo(0)
          }
@@ -95,7 +95,7 @@ class TaskSpec extends Specification {
 
       "return user's tasks list" in {
          running(FakeApplication(additionalConfiguration = inMemoryDatabase())){
-            //Usuario existente con dos tareas asociadas
+            //Usuario existente con tres tareas asociadas
             val tasks:List[Task] = Task.tasks("McQuack")
             tasks.length must equalTo(3)
          }
@@ -128,7 +128,6 @@ class TaskSpec extends Specification {
 
       "create task with date and an existent user" in {
          running(FakeApplication(additionalConfiguration = inMemoryDatabase())){
-            //Usuario no existente
             val task = Task.createWithUserAndDate("task","McQuack",correctDate)
             task.label must equalTo("task")
             task.deadline must equalTo(correctDate)
