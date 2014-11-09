@@ -103,22 +103,60 @@ class ApplicationSpec extends Specification with JsonMatchers {
         resultString must /("label" -> "testing")
         resultString must /("deadline" -> "")
 
+        //Comprobación extra para ver si está todo correcto
         val Some(result2) = route(FakeRequest(GET, "/McQuack/tasks"))
         status(result2) must equalTo(OK)
         contentType(result2) must beSome.which(_ == "application/json")
         val resultJson2: JsValue = contentAsJson(result2)
-        //Hay 3 tareas ya creadas asociadas a mi usuario anónimo
-        //como aquí creamos una más, el total es 4
+        //Hay 3 tareas ya creadas asociadas a mi usuario anónimo.
+        //Como justo antes hemos creado una más, el total es 4
         resultJson2.as[JsArray].value.size must equalTo(4)
       }
     }
 
-    "send 404 on a nonexistent user task list request" in {
+    "send 404 on a nonexistent user's task list request" in {
       running(FakeApplication(additionalConfiguration = inMemoryDatabase())) {
         val Some(result) = route(FakeRequest(GET, "/Fake_user/tasks"))
 
         status(result) must equalTo(NOT_FOUND)
+        //Como devuelvo un html compruebo que es así
         contentType(result) must beSome.which(_ == "text/html")
+      }
+    }
+
+    "send 400 on a task creation with an incorrect date" in {
+      running(FakeApplication(additionalConfiguration = inMemoryDatabase())) {
+        //Lo pruebo tanto con usuario como sin él
+        val Some(result) = route(FakeRequest(POST, "/McQuack/tasks", FakeHeaders(), Map("label" -> Seq("testing"), "deadline" -> Seq("1212-2014"))))
+        val Some(result2) = route(FakeRequest(POST, "/tasks", FakeHeaders(), Map("label" -> Seq("testing"), "deadline" -> Seq("1212-2014"))))
+
+        status(result) must equalTo(BAD_REQUEST)
+        status(result2) must equalTo(BAD_REQUEST)
+      }
+    }
+
+    "send 201 and return task in json format on a task creation with or without an user login and a correct date" in {
+      running(FakeApplication(additionalConfiguration = inMemoryDatabase())) {
+        val Some(result) = route(FakeRequest(POST, "/McQuack/tasks", FakeHeaders(), Map("label" -> Seq("testing"), "deadline" -> Seq("14-10-1990"))))
+        val Some(result2) = route(FakeRequest(POST, "/tasks", FakeHeaders(), Map("label" -> Seq("testing"), "deadline" -> Seq("14-10-1990"))))
+
+        status(result) must equalTo(CREATED)
+        contentType(result) must beSome.which(_ == "application/json")
+
+        val resultJson: JsValue = contentAsJson(result)
+        val resultString = Json.stringify(resultJson) 
+ 
+        resultString must /("label" -> "testing")
+        resultString must /("deadline" -> "14-10-1990")
+
+        status(result2) must equalTo(CREATED)
+        contentType(result2) must beSome.which(_ == "application/json")
+
+        val resultJson2: JsValue = contentAsJson(result2)
+        val resultString2 = Json.stringify(resultJson2)
+
+        resultString2 must /("label" -> "testing")
+        resultString2 must /("deadline" -> "14-10-1990") 
       }
     }
   }
