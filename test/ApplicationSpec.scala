@@ -273,7 +273,7 @@ class ApplicationSpec extends Specification with JsonMatchers {
       }
     }
 
-    "return OK trying to deleting tasks with the a date before than the date passed by url" in {
+    "return OK trying to deleting tasks with a date before than the date passed by url" in {
       running(FakeApplication(additionalConfiguration = inMemoryDatabase())) {
         val Some(result) = route(FakeRequest(GET, "/McQuack/tasks/04-11-2014"))
 
