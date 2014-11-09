@@ -181,6 +181,18 @@ class ApplicationSpec extends Specification with JsonMatchers {
         val Some(result) = route(FakeRequest(GET, "/tasks/05-11-2014"))
 
         status(result) must equalTo(OK)
+
+        //Comprobación extra para ver si está todo correcto
+        val Some(result2) = route(FakeRequest(GET, "/McQuack/tasks"))
+        status(result2) must equalTo(OK)
+        contentType(result2) must beSome.which(_ == "application/json")
+        val resultJson2: JsValue = contentAsJson(result2)
+        /*Hay 3 tareas ya creadas asociadas a mi usuario anónimo.
+        **Como justo antes hemos borrado las que tienen como fecha de finalización 05-11-2014
+        **y solo había una, ahora el total debe ser 2 (iniciamos la base de datos con 3 asociadas
+        **a nuestro usuario anónimo)
+        */
+        resultJson2.as[JsArray].value.size must equalTo(2)
       }
     }
 
@@ -189,7 +201,37 @@ class ApplicationSpec extends Specification with JsonMatchers {
         val Some(result) = route(FakeRequest(GET, "/tasks/0511-2014"))
 
         status(result) must equalTo(BAD_REQUEST)
+
+        //Comprobación extra para ver si está todo correcto
+        val Some(result2) = route(FakeRequest(GET, "/McQuack/tasks"))
+        status(result2) must equalTo(OK)
+        contentType(result2) must beSome.which(_ == "application/json")
+        val resultJson2: JsValue = contentAsJson(result2)
+        /*Hay 3 tareas ya creadas asociadas a mi usuario anónimo.
+        **Hemos intentado borrar las que tienen como fecha de finalización 0511-2014.
+        **Como no se borra ninguna al ser una petición errónea, el total debe ser 3
+        */
+        resultJson2.as[JsArray].value.size must equalTo(3)
       }
     }
+
+    "return OK trying to deleting tasks with the same date passed by url" in {
+      running(FakeApplication(additionalConfiguration = inMemoryDatabase())) {
+        val Some(result) = route(FakeRequest(GET, "/tasks/06-11-2014"))
+
+        status(result) must equalTo(OK)
+
+        //Comprobación extra para ver si está todo correcto
+        val Some(result2) = route(FakeRequest(GET, "/McQuack/tasks"))
+        status(result2) must equalTo(OK)
+        contentType(result2) must beSome.which(_ == "application/json")
+        val resultJson2: JsValue = contentAsJson(result2)
+        /*Hay 3 tareas ya creadas asociadas a mi usuario anónimo.
+        **Hemos intentado borrar las que tienen como fecha de finalización 06-11-2014.
+        **Como no hay ninguna, el total debe seguir siendo 3
+        */
+        resultJson2.as[JsArray].value.size must equalTo(3)
+      }
+    }    
   }
 }
