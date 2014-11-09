@@ -6,6 +6,7 @@ import org.junit.runner._
 import play.api.test._
 import play.api.test.Helpers._
 import play.api.libs.json.{Json,JsValue,JsArray}
+import play.api.libs.Files._
 
 import controllers.Application
 import models.Task
@@ -31,7 +32,7 @@ class ApplicationSpec extends Specification with JsonMatchers {
       redirectLocation(home) must beSome("/tasks")
     }
 
-    "return task json format" in {
+    "return task in json format" in {
       running(FakeApplication(additionalConfiguration = inMemoryDatabase())) {
         val task = Task.create("prueba")
         val Some(resultTask) = route(FakeRequest(GET, "/tasks/"+task.id))
@@ -48,7 +49,7 @@ class ApplicationSpec extends Specification with JsonMatchers {
       }
     }
 
-    "return anonymous user tasks json format" in {
+    "return anonymous user tasks in json format" in {
       running(FakeApplication(additionalConfiguration = inMemoryDatabase())) {
         val Some(resultTasks) = route(FakeRequest(GET, "/tasks"))
 
@@ -71,6 +72,21 @@ class ApplicationSpec extends Specification with JsonMatchers {
 
         status(result) must equalTo(NOT_FOUND)
         contentType(result) must beSome.which(_ == "text/html")
+      }
+    }
+
+    "send 201 and return task in json format on a task creation" in {
+      running(FakeApplication(additionalConfiguration = inMemoryDatabase())) {
+        val Some(result) = route(FakeRequest(POST, "/tasks", FakeHeaders(), Map("label" -> Seq("testing"))))
+
+        status(result) must equalTo(CREATED)
+        contentType(result) must beSome.which(_ == "application/json")
+
+        val resultJson: JsValue = contentAsJson(result)
+        val resultString = Json.stringify(resultJson) 
+ 
+        resultString must /("label" -> "testing")
+        resultString must /("deadline" -> "")
       }
     }
   }
