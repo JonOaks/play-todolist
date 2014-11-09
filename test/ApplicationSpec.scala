@@ -167,5 +167,13 @@ class ApplicationSpec extends Specification with JsonMatchers {
         status(result) must equalTo(OK)
       }
     }
+
+    "send 404 deleting an nonexistent task" in {
+      running(FakeApplication(additionalConfiguration = inMemoryDatabase())) {
+        val Some(result) = route(FakeRequest(DELETE, "/tasks/4"))
+
+        status(result) must equalTo(NOT_FOUND)
+      }
+    }
   }
 }
