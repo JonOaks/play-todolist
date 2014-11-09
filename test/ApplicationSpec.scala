@@ -196,7 +196,7 @@ class ApplicationSpec extends Specification with JsonMatchers {
       }
     }
 
-    "send 400 deleting tasks with the same date, that is incorrect, passed by url" in {
+    "send 400 deleting tasks with the same date passed by url, that is incorrect" in {
       running(FakeApplication(additionalConfiguration = inMemoryDatabase())) {
         val Some(result) = route(FakeRequest(GET, "/tasks/0511-2014"))
 
@@ -251,6 +251,25 @@ class ApplicationSpec extends Specification with JsonMatchers {
         **ahora el total debe ser 2 (iniciamos la base de datos con 3 asociadas a nuestro usuario anónimo)
         */
         resultJson2.as[JsArray].value.size must equalTo(2)
+      }
+    }
+
+    "send 400 deleting tasks with the date before than the date passed by url, that is incorrect" in {
+      running(FakeApplication(additionalConfiguration = inMemoryDatabase())) {
+        val Some(result) = route(FakeRequest(GET, "/McQuack/tasks/0611-2014"))
+
+        status(result) must equalTo(BAD_REQUEST)
+
+        //Comprobación extra para ver si está todo correcto
+        val Some(result2) = route(FakeRequest(GET, "/McQuack/tasks"))
+        status(result2) must equalTo(OK)
+        contentType(result2) must beSome.which(_ == "application/json")
+        val resultJson2: JsValue = contentAsJson(result2)
+        /*Hay 3 tareas ya creadas asociadas a mi usuario anónimo.
+        **Hemos intentado borrar las que tienen como fecha de finalización una anterior a 0611-2014.
+        **Como no se borra ninguna al ser una petición errónea, el total debe ser 3
+        */
+        resultJson2.as[JsArray].value.size must equalTo(3)
       }
     }
   }
