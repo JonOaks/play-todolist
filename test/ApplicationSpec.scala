@@ -112,5 +112,14 @@ class ApplicationSpec extends Specification with JsonMatchers {
         resultJson2.as[JsArray].value.size must equalTo(4)
       }
     }
+
+    "send 404 on a nonexistent user task list request" in {
+      running(FakeApplication(additionalConfiguration = inMemoryDatabase())) {
+        val Some(result) = route(FakeRequest(GET, "/Fake_user/tasks"))
+
+        status(result) must equalTo(NOT_FOUND)
+        contentType(result) must beSome.which(_ == "text/html")
+      }
+    }
   }
 }
