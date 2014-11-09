@@ -89,5 +89,28 @@ class ApplicationSpec extends Specification with JsonMatchers {
         resultString must /("deadline" -> "")
       }
     }
+
+    "send 201 and return task in json format on a task creation with an user login" in {
+      running(FakeApplication(additionalConfiguration = inMemoryDatabase())) {
+        val Some(result) = route(FakeRequest(POST, "/McQuack/tasks", FakeHeaders(), Map("label" -> Seq("testing"))))
+
+        status(result) must equalTo(CREATED)
+        contentType(result) must beSome.which(_ == "application/json")
+
+        val resultJson: JsValue = contentAsJson(result)
+        val resultString = Json.stringify(resultJson) 
+ 
+        resultString must /("label" -> "testing")
+        resultString must /("deadline" -> "")
+
+        val Some(result2) = route(FakeRequest(GET, "/McQuack/tasks"))
+        status(result2) must equalTo(OK)
+        contentType(result2) must beSome.which(_ == "application/json")
+        val resultJson2: JsValue = contentAsJson(result2)
+        //Hay 3 tareas ya creadas asociadas a mi usuario anónimo
+        //como aquí creamos una más, el total es 4
+        resultJson2.as[JsArray].value.size must equalTo(4)
+      }
+    }
   }
 }
