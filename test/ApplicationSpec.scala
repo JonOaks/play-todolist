@@ -232,6 +232,26 @@ class ApplicationSpec extends Specification with JsonMatchers {
         */
         resultJson2.as[JsArray].value.size must equalTo(3)
       }
-    }    
+    }
+
+    "return OK deleting tasks with the date before than the date passed by url" in {
+      running(FakeApplication(additionalConfiguration = inMemoryDatabase())) {
+        val Some(result) = route(FakeRequest(GET, "/McQuack/tasks/06-11-2014"))
+
+        status(result) must equalTo(OK)
+
+        //Comprobación extra para ver si está todo correcto
+        val Some(result2) = route(FakeRequest(GET, "/McQuack/tasks"))
+        status(result2) must equalTo(OK)
+        contentType(result2) must beSome.which(_ == "application/json")
+        val resultJson2: JsValue = contentAsJson(result2)
+        /*Hay 3 tareas ya creadas asociadas a mi usuario anónimo.
+        **Como justo antes hemos borrado las que tienen como fecha de finalización
+        **una fecha anterior a 06-11-2014 y solo había una,
+        **ahora el total debe ser 2 (iniciamos la base de datos con 3 asociadas a nuestro usuario anónimo)
+        */
+        resultJson2.as[JsArray].value.size must equalTo(2)
+      }
+    }
   }
 }
