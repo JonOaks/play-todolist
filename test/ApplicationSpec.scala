@@ -159,5 +159,13 @@ class ApplicationSpec extends Specification with JsonMatchers {
         resultString2 must /("deadline" -> "14-10-1990") 
       }
     }
+
+    "return OK deleting a task" in {
+      running(FakeApplication(additionalConfiguration = inMemoryDatabase())) {
+        val Some(result) = route(FakeRequest(DELETE, "/tasks/3"))
+
+        status(result) must equalTo(OK)
+      }
+    }
   }
 }
