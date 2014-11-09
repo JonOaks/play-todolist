@@ -175,5 +175,13 @@ class ApplicationSpec extends Specification with JsonMatchers {
         status(result) must equalTo(NOT_FOUND)
       }
     }
+
+    "return OK deleting tasks with the same date passed by url" in {
+      running(FakeApplication(additionalConfiguration = inMemoryDatabase())) {
+        val Some(result) = route(FakeRequest(GET, "/tasks/05-11-2014"))
+
+        status(result) must equalTo(OK)
+      }
+    }
   }
 }
