@@ -307,54 +307,46 @@ class ApplicationSpec extends Specification with JsonMatchers {
         }
     }
 
-    "return user's task list of one category in json format" in {
+    "return user's tasks list of one category in json format" in {
         running(FakeApplication(additionalConfiguration = inMemoryDatabase())) {
             val Some(resultTasks) = route(FakeRequest(GET, "/McQuack/Adventure/tasks"))
 
             status(resultTasks) must equalTo(OK)
-            // contentType(resultTasks) must beSome.which(_ == "application/json")
+            contentType(resultTasks) must beSome.which(_ == "application/json")
 
             /* El resultado de la petición es una colección JSON
             ** con la lista de tareas de mi usuario anónimo ("McQuack") en la categoría "Adventure"
             */
-            // val resultJson: JsValue= contentAsJson(resultTasks)
+            val resultJson: JsValue= contentAsJson(resultTasks)
             //Como quiero contar el número de elementos en el JsValue
             //lo mapeo en un JsArray y verifico su tamaño
-            // resultJson.as[JsArray].value.size must equalTo(1)
+            resultJson.as[JsArray].value.size must equalTo(1)
         }
     }
 
-    "send 404 trying to return the user's task list of a nonexistent user" in {
+    "send 404 trying to return the user's tasks list of a nonexistent user" in {
         running(FakeApplication(additionalConfiguration = inMemoryDatabase())) {
             val Some(resultTasks) = route(FakeRequest(GET, "/Fake_user/Adventure/tasks"))
 
             status(resultTasks) must equalTo(NOT_FOUND)
-            // contentType(resultTasks) must beSome.which(_ == "application/json")
-
-            /* El resultado de la petición es una colección JSON
-            ** con la lista de tareas de mi usuario anónimo ("McQuack") en la categoría "Adventure"
-            */
-            // val resultJson: JsValue= contentAsJson(resultTasks)
-            //Como quiero contar el número de elementos en el JsValue
-            //lo mapeo en un JsArray y verifico su tamaño
-            // resultJson.as[JsArray].value.size must equalTo(0)
         }
     }
 
-    "send 404 trying to return the user's task list of a nonexistent category" in {
+    "send 404 trying to return the user's tasks list of a nonexistent category" in {
         running(FakeApplication(additionalConfiguration = inMemoryDatabase())) {
             val Some(resultTasks) = route(FakeRequest(GET, "/McQuack/Fake_category/tasks"))
 
             status(resultTasks) must equalTo(NOT_FOUND)
-            // contentType(resultTasks) must beSome.which(_ == "application/json")
+        }
+    }
 
-            /* El resultado de la petición es una colección JSON
-            ** con la lista de tareas de mi usuario anónimo ("McQuack") en la categoría "Adventure"
-            */
-            // val resultJson: JsValue= contentAsJson(resultTasks)
-            //Como quiero contar el número de elementos en el JsValue
-            //lo mapeo en un JsArray y verifico su tamaño
-            // resultJson.as[JsArray].value.size must equalTo(0)
+    "return 400 trying to return the user's tasks list of a existent user and category that are not vinculated" in {
+        running(FakeApplication(additionalConfiguration = inMemoryDatabase())) {
+            val Some(result) = route(FakeRequest(GET, "/Jonatan/Compulsory"))
+            status(result) must equalTo(OK)
+            val Some(resultTasks) = route(FakeRequest(GET, "/McQuack/Compulsory/tasks"))
+
+            status(resultTasks) must equalTo(BAD_REQUEST)
         }
     }
 

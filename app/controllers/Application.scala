@@ -163,7 +163,34 @@ object Application extends Controller {
       User.existUser(login) match {
          case None => NotFound(html_404).as("text/html")
          case Some(t) => {
-            Ok
+            // Si ya existe la categoria lo que hacemos es vincularla también a otro usuario (case Some(t))
+            Category.existCategory(category) match {
+               case None => {
+                  if(Task.newCategory(login,category) == "CREADA")
+                  {
+                     Ok("CATEGORY " + category + " HAS BEEN CREATED AND VINCULATED TO THE USER NAMED " + login).as("text/html")
+                  }
+                  else
+                  {
+                     Ok("CATEGORY" + category + " HASN'T BEEN CREATED").as("text/html")
+                  }
+               }
+               case Some(t) =>
+               {
+                  if(Category.categoryBelongToUser(category,login) == 0)
+                  {
+                     Task.addCategoryToUser(login,category)
+                     Ok("CATEGORY " + category + " HAS BEEN VINCULATED TO THE USER NAMED " + login).as("text/html")
+                  }
+                  // Si ya existe y está vinculada al usuario facilitado por parámetro, no se hace nada
+                  // y se devuelve un error 400
+                  else
+                  {
+                     BadRequest("CATEGORY " + category + " ALREADY EXISTS AND BELONG TO THE USER NAMED " + login)
+                  }
+               }
+            }
+
          }
       }
    }
@@ -175,7 +202,16 @@ object Application extends Controller {
             Category.existCategory(category) match {
                case None => NotFound(html_404).as("text/html")
                case Some(u) => {
-                  Ok
+                  //Comprobamos que la categoria pertenece al usuario especificado por parámetro
+                  if(Category.categoryBelongToUser(category,login) > 0)
+                  {
+                     val json = Json.toJson(Task.getTasksCategory(login,category))
+                     Ok(json)
+                  }
+                  else
+                  {
+                     BadRequest
+                  }
                }
             }
          }
@@ -189,7 +225,23 @@ object Application extends Controller {
             Category.existCategory(category) match {
                case None => BadRequest
                case Some(u) => {
-                  Ok
+                  //Comprobamos que la categoria pertenece al usuario especificado por parámetro
+                  if(Category.categoryBelongToUser(category,login) > 0)
+                  {
+                     if(Task.addTaskToCategory(category,id) == "AÑADIDA")
+                     {
+                        Ok("TASK NUMBER " + id + " HAS BEEN ADDED TO CATEGORY " + category)
+                     }
+                     else
+                     {
+                        Ok("TASK NUMBER " + id + " HASN'T BEEN ADDED TO CATEGORY " + category)
+                     }
+
+                  }
+                  else
+                  {
+                     BadRequest
+                  }
                }
             }
          }
