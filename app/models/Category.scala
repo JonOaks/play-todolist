@@ -13,11 +13,11 @@ object Category {
    val category = {
       get[Long]("id") ~ 
       get[String]("category") map {
-         case id~category => User(id, category)
+         case id~category => Category(id, category)
       }
    }
 
-   def existCategory(category: String): Option[Category] = DB.withConnection{
-      implicit c => SQL("select * from category where category = {category}").on('category -> category).as(category.singleOpt)
+   def existCategory(category_name: String): Option[Category] = DB.withConnection{
+      implicit c => SQL("select * from category where category = {category_name}").on('category_name -> category_name).as(category.singleOpt)
    }
 }
