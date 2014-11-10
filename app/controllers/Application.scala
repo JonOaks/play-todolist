@@ -8,6 +8,7 @@ import play.api.data.Forms._
 
 import models.Task
 import models.User
+import models.Category
 
 import play.api.libs.json._
 import play.api.libs.functional.syntax._
@@ -159,15 +160,40 @@ object Application extends Controller {
 
    // Métodos Feature 4 (CATEGORÍAS)
    def newCategory(login: String, category: String) = Action {
-      BadRequest
+      User.existUser(login) match {
+         case None => NotFound(html_404).as("text/html")
+         case Some(t) => {
+            Ok
+         }
+      }
    }
 
    def getTasksCategory(login: String, category: String) = Action {
-      BadRequest
+      User.existUser(login) match {
+         case None => NotFound(html_404).as("text/html")
+         case Some(t) => {
+            Category.existCategory(category) match {
+               case None => NotFound(html_404).as("text/html")
+               case Some(u) => {
+                  Ok
+               }
+            }
+         }
+      }
    }
 
    def addTaskToCategory(login: String, category: String, id: Long) = Action {
-      BadRequest
+      User.existUser(login) match {
+         case None => BadRequest
+         case Some(t) => {
+            Category.existCategory(category) match {
+               case None => BadRequest
+               case Some(u) => {
+                  Ok
+               }
+            }
+         }
+      }
    }
 }
 
