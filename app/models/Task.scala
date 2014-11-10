@@ -135,4 +135,26 @@ object Task {
       }
       return "AÑADIDA"
    }
+
+   def taskBelongToUser(id: Long, login: String): Long = {
+      var cantidad = 0L
+      val rowParser = scalar[Long]
+      val rsParser = scalar[Long].single
+
+      DB.withConnection {implicit c => cantidad = SQL("select count(*) from task where id = {id} and author_login = {login}").on('login -> login).on('id -> id).as(scalar[Long].single)
+      }
+
+      return cantidad
+   }
+
+   def taskBelongToCategory(task_id: Long, category: String): Long = {
+      var cantidad = 0L
+      val rowParser = scalar[Long]
+      val rsParser = scalar[Long].single
+
+      DB.withConnection {implicit c => cantidad = SQL("select count(*) from task_category where task_id = {task_id} and category = {category}").on('category -> category).on('task_id -> task_id).as(scalar[Long].single)
+      }
+
+      return cantidad
+   }
 }
