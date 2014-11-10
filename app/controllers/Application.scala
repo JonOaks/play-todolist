@@ -186,7 +186,7 @@ object Application extends Controller {
                   // y se devuelve un error 400
                   else
                   {
-                     BadRequest("CATEGORY " + category + " ALREADY EXISTS AND BELONG TO THE USER NAMED " + login)
+                     BadRequest("CATEGORY " + category + " ALREADY EXISTS AND BELONG TO THE USER NAMED " + login).as("text/html")
                   }
                }
             }
@@ -222,27 +222,41 @@ object Application extends Controller {
       User.existUser(login) match {
          case None => BadRequest
          case Some(t) => {
-            Category.existCategory(category) match {
-               case None => BadRequest
-               case Some(u) => {
-                  //Comprobamos que la categoria pertenece al usuario especificado por parámetro
-                  if(Category.categoryBelongToUser(category,login) > 0)
-                  {
-                     if(Task.addTaskToCategory(category,id) == "AÑADIDA")
+            //Comprobamos que la tarea pertenece al usuario especificado por parámetro
+            if(Task.taskBelongToUser(id,login) > 0)
+            {
+               Category.existCategory(category) match {
+                  case None => BadRequest
+                  case Some(u) => {
+                     //Comprobamos que la categoria pertenece al usuario especificado por parámetro
+                     if(Category.categoryBelongToUser(category,login) > 0)
                      {
-                        Ok("TASK NUMBER " + id + " HAS BEEN ADDED TO CATEGORY " + category)
+                        if(Task.taskBelongToCategory(id,category) > 0)
+                        {
+                           BadRequest("THE TASK NUMBER " + id + " ALREADY BELONGS TO CATEGORY " + category).as("text/html")
+                        }
+                        else
+                        {
+                           if(Task.addTaskToCategory(category,id) == "AÑADIDA")
+                           {
+                              Ok("TASK NUMBER " + id + " HAS BEEN ADDED TO CATEGORY " + category).as("text/html")
+                           }
+                           else
+                           {
+                              Ok("TASK NUMBER " + id + " HASN'T BEEN ADDED TO CATEGORY " + category).as("text/html")
+                           }
+                        }
                      }
                      else
                      {
-                        Ok("TASK NUMBER " + id + " HASN'T BEEN ADDED TO CATEGORY " + category)
+                        BadRequest
                      }
-
-                  }
-                  else
-                  {
-                     BadRequest
                   }
                }
+            }
+            else
+            {
+               BadRequest
             }
          }
       }
