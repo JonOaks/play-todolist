@@ -31,6 +31,11 @@ ALTER TABLE user_category ADD constraint fk_user_category_category FOREIGN KEY (
 ALTER TABLE task_category ADD constraint fk_task_category_task FOREIGN KEY (task_id) REFERENCES task (id) ON DELETE restrict ON UPDATE restrict;
 ALTER TABLE task_category ADD constraint fk_task_category_category FOREIGN KEY (category) REFERENCES category (category) ON DELETE restrict ON UPDATE restrict;
 
+INSERT into category (category) values ('Adventure');
+INSERT into user_category (login,category) values ('McQuack','Adventure');
+INSERT into task (label,author_login) values ('Testing','McQuack');
+INSERT into task_category (task_id,category) values (4,'Adventure');
+
 # --- !Downs
 
 DROP TABLE category;
