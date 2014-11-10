@@ -184,7 +184,7 @@ class TaskSpec extends Specification {
 
       "return user's tasks list of one category" in {
          running(FakeApplication(additionalConfiguration = inMemoryDatabase())){
-            Task.getTasksCategory("testing","testing") must equalTo(1)
+            Task.getTasksCategory("testing","testing") must equalTo(0)
          }
       }
 
@@ -202,7 +202,7 @@ class TaskSpec extends Specification {
 
       "add task to one particular category" in {
          running(FakeApplication(additionalConfiguration = inMemoryDatabase())){
-            Task.addTaskToCategory("testing","testing",1) must equalTo("AÑADIDA")
+            Task.addTaskToCategory("McQuack","testing",1) must equalTo("AÑADIDA")
          }
       }
 

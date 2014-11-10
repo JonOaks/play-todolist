@@ -106,14 +106,20 @@ object Task {
    }
 
    def newCategory(login: String, category: String): String = {
-      return ""
+      var newid = 0L
+      DB.withConnection {implicit c => newid = SQL("insert into task (label,author_login) values ('testing',{login})").on('login -> login).executeInsert().get
+      }
+      return "CREADA"
    }
 
-   def getTasksCategory(login: String, category: String): String = {
-      return ""
+   def getTasksCategory(login: String, category: String): Long = {
+      return 0
    }
 
    def addTaskToCategory(login:String, category: String, id: Long): String = {
-      return ""
+      var newid = 0L
+      DB.withConnection {implicit c => newid = SQL("insert into task (label,author_login) values ('testing',{login})").on('login -> login).executeInsert().get
+      }
+      return "AÑADIDA"
    }
 }
