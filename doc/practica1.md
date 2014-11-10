@@ -3,7 +3,7 @@ _Jonatan Diego Poyato Hernández_
 Práctica 1
 =========
 
-En esta primera iteración vamos a hacer una primera iteración en la que convertiremos la aplicación en una API REST que trabaja con objetos JSON y añadiremos algunos datos adicionales que las tareas gestiona la API: usuario que crea la tarea y fecha opcional de finalización.
+En esta práctica vamos a hacer una primera iteración en la que convertiremos la aplicación en una API REST que trabaja con objetos JSON y añadiremos algunos datos adicionales que las tareas gestiona la API: usuario que crea la tarea y fecha opcional de finalización.
 
 Feature 1
 ----

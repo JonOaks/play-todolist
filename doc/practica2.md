@@ -3,7 +3,7 @@ _Jonatan Diego Poyato Hernández_
 Práctica 2
 =========
 
-Vamos a crear los tests que prueben las funciones del modelo y del controlador.
+Vamos a crear los tests que prueban las funciones del modelo y del controlador.
 Hemos comenzado creando los tests del modelo ***User***:
 
 ```
@@ -161,7 +161,7 @@ Respecto al borrado, hemos realizado la comprobación extra (cuando decimos extr
     }
 ```
 
-Y los tests asociados al borrado que se realiza en las funcionalidades "especiales" son estos:
+Y los tests asociados al borrado que se realizan en las funcionalidades "especiales" son estos:
 
 ```
     "return OK deleting tasks with the same date passed by url" in {
@@ -280,3 +280,105 @@ Y los tests asociados al borrado que se realiza en las funcionalidades "especial
       }
     }
 ```
+
+Nueva feature usando TDD(Categorías)
+----
+
+Hemos añadido una nueva característica usando TDD: **categorías**. Hemos ampliado el API para que se puedan crear categorías asociadas a un usuario y que se puedan añadir, modificar y listar las tareas de un usuario dentro de una determinada categoría.
+
+Lo primero que hemos hecho ha sido crear una nueva evolución en la que hemos creado tres tablas, una para almacenar las categorías y dos más que representan las relaciones "muchos a muchos" existentes entre categoría y tarea y entre categoría y usuario, y hemos hecho algunas inserciones para probar la nueva funcionalidad.
+
+```
+CREATE SEQUENCE category_id_seq;
+CREATE TABLE category (
+      id integer NOT NULL DEFAULT nextval('category_id_seq'),
+      category varchar(255) NOT NULL,
+      constraint pk_category PRIMARY KEY (category)
+);
+
+CREATE SEQUENCE user_category_id_seq;
+CREATE TABLE user_category (
+      id integer NOT NULL DEFAULT nextval('user_category_id_seq'),
+      login varchar(255) NOT NULL,
+      category varchar(255) NOT NULL,
+      constraint pk_user_category PRIMARY KEY (login,category)
+);
+
+CREATE SEQUENCE task_category_id_seq;
+CREATE TABLE task_category (
+      id integer NOT NULL DEFAULT nextval('task_category_id_seq'),
+      task_id varchar(255) NOT NULL,
+      category varchar(255) NOT NULL,
+      constraint pk_task_category PRIMARY KEY(task_id,category)
+);
+
+ALTER TABLE user_category ADD constraint fk_user_category_task_user FOREIGN KEY (login) REFERENCES task_user (login) ON DELETE restrict ON UPDATE restrict;
+ALTER TABLE user_category ADD constraint fk_user_category_category FOREIGN KEY (category) REFERENCES category (category) ON DELETE restrict ON UPDATE restrict;
+
+ALTER TABLE task_category ADD constraint fk_task_category_task FOREIGN KEY (task_id) REFERENCES task (id) ON DELETE restrict ON UPDATE restrict;
+ALTER TABLE task_category ADD constraint fk_task_category_category FOREIGN KEY (category) REFERENCES category (category) ON DELETE restrict ON UPDATE restrict;
+```
+
+Seguidamente, lo que hemos hecho ha sido crear todos los tests que comprueban la funcionalidad que queríamos añadir al sistema. Como es lógico, fallaban. Tras crearlos todos hemos escrito un código que hacía que funcionasen para después refactorizar el código de la nueva funcionalidad tanto en controlador como en el modelo.
+
+Destacar un par de métodos del modelo en los que contabamos las filas obtenidas tras realizar una query a nuestra base de datos:
+
+```
+   def taskBelongToUser(id: Long, login: String): Long = {
+      var cantidad = 0L
+      val rowParser = scalar[Long]
+      val rsParser = scalar[Long].single
+
+      DB.withConnection {implicit c => cantidad = SQL("select count(*) from task where id = {id} and author_login = {login}").on('login -> login).on('id -> id).as(scalar[Long].single)
+      }
+
+      return cantidad
+   }
+
+   def taskBelongToCategory(task_id: Long, category: String): Long = {
+      var cantidad = 0L
+      val rowParser = scalar[Long]
+      val rsParser = scalar[Long].single
+
+      DB.withConnection {implicit c => cantidad = SQL("select count(*) from task_category where task_id = {task_id} and category = {category}").on('category -> category).on('task_id -> task_id).as(scalar[Long].single)
+      }
+
+      return cantidad
+   }
+```
+
+También hemos creado el fichero ***Category.scala*** el cual representa el modelo categoría:
+
+```
+case class Category(id: Long, category: String)
+
+object Category {
+
+   val category = {
+      get[Long]("id") ~ 
+      get[String]("category") map {
+         case id~category => Category(id, category)
+      }
+   }
+
+   def existCategory(category_name: String): Option[Category] = DB.withConnection{
+      implicit c => SQL("select * from category where category = {category_name}").on('category_name -> category_name).as(category.singleOpt)
+   }
+
+   def categoryBelongToUser(category_name: String, login: String): Long = {
+      var cantidad = 0L
+      val rowParser = scalar[Long]
+      val rsParser = scalar[Long].single
+
+      DB.withConnection {implicit c => cantidad = SQL("select count(*) from user_category where category = {category_name} and login = {login}").on('login -> login).on('category_name -> category_name).as(scalar[Long].single)
+      }
+
+      return cantidad
+   }
+}
+```
+
+En él definimos la clase y algunos métodos asociados a la misma que hemos necesitado en el controlador.
+
+De esta forma, la nueva característica queda añadida.
+
