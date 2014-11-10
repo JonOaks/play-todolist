@@ -107,18 +107,23 @@ object Task {
 
    def newCategory(login: String, category: String): String = {
       var newid = 0L
-      DB.withConnection {implicit c => newid = SQL("insert into task (label,author_login) values ('testing',{login})").on('login -> login).executeInsert().get
+      DB.withConnection {implicit c => newid = SQL("insert into category (category) values ({category})").on('category -> category).executeInsert().get
+      }
+      DB.withConnection {implicit c => newid = SQL("insert into user_category (login,category) values ({login},{category})").on('login -> login).on('category -> category).executeInsert().get
       }
       return "CREADA"
    }
 
-   def getTasksCategory(login: String, category: String): Long = {
-      return 0
+   def getTasksCategory(login: String, category: String): List[Task] = DB.withConnection{
+      // la comprobación de si el usuario tiene la categoría pasada por parámetro asociada a él
+      // la hacemos en el controlador
+      implicit c => SQL("select t.* from task t inner join task_category tc on tc.task_id = t.id inner join category c on c.category = tc.category where t.author_login = {login} and c.category = {category}").on('login -> login).on('category -> category).as(task *)
    }
 
-   def addTaskToCategory(login:String, category: String, id: Long): String = {
-      var newid = 0L
-      DB.withConnection {implicit c => newid = SQL("insert into task (label,author_login) values ('testing',{login})").on('login -> login).executeInsert().get
+   def addTaskToCategory(category: String, id: Long): String = {
+      // la comprobación de si el usuario tiene la categoría pasada por parámetro asociada a él
+      // la hacemos en el controlador
+      DB.withConnection {implicit c => SQL("insert into task_category (task_id,category) values ({id},{category})").on('id -> id).on('category -> category).executeInsert().get
       }
       return "AÑADIDA"
    }

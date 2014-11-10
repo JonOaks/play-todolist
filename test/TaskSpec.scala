@@ -29,8 +29,8 @@ class TaskSpec extends Specification {
       "return all tasks" in {
          running(FakeApplication(additionalConfiguration = inMemoryDatabase())){
             val tasks:List[Task] = Task.all()
-            //Como existen tres tareas, la longitud de la lista debe ser 3
-            tasks.length must equalTo(3)
+            //Como existen cuatro tareas, la longitud de la lista debe ser 4
+            tasks.length must equalTo(4)
          }
       }
 
@@ -43,7 +43,7 @@ class TaskSpec extends Specification {
 
       "not return task" in {
          running(FakeApplication(additionalConfiguration = inMemoryDatabase())){
-            val task = Task.task(4)
+            val task = Task.task(5)
             task must beNone
          }
       }
@@ -77,7 +77,7 @@ class TaskSpec extends Specification {
 
       "delete task" in {
          running(FakeApplication(additionalConfiguration = inMemoryDatabase())){
-            //Existen tres tareas en la base de datos, borramos la primera
+            //Existen cuatro tareas en la base de datos, borramos la primera
             val success = Task.delete(1)
             success must equalTo(1)
          }
@@ -85,17 +85,17 @@ class TaskSpec extends Specification {
 
       "not delete task" in {
          running(FakeApplication(additionalConfiguration = inMemoryDatabase())){
-            //Existen tres tareas en la base de datos, intentamos borrar la última
-            val success = Task.delete(4)
+            //Existen cuatro tareas en la base de datos, intentamos borrar la número 5 que no existe
+            val success = Task.delete(5)
             success must equalTo(0)
          }
       }
 
       "return user's tasks list" in {
          running(FakeApplication(additionalConfiguration = inMemoryDatabase())){
-            //Usuario existente con tres tareas asociadas
+            //Usuario existente con cuatro tareas asociadas
             val tasks:List[Task] = Task.tasks("McQuack")
-            tasks.length must equalTo(3)
+            tasks.length must equalTo(4)
          }
       }
 
@@ -184,43 +184,31 @@ class TaskSpec extends Specification {
 
       "return user's tasks list of one category" in {
          running(FakeApplication(additionalConfiguration = inMemoryDatabase())){
-            Task.getTasksCategory("testing","testing") must equalTo(0)
+            Task.getTasksCategory("McQuack","Adventure").length must equalTo(1)
          }
       }
 
       "return user's tasks list empty of one category because the user doesn't exist" in {
          running(FakeApplication(additionalConfiguration = inMemoryDatabase())){
-            Task.getTasksCategory("testing","testing") must equalTo(0)
+            Task.getTasksCategory("testing","Adventure").length must equalTo(0)
          }
       }
 
       "return user's tasks list empty of one category because the category doesn't exist" in {
          running(FakeApplication(additionalConfiguration = inMemoryDatabase())){
-            Task.getTasksCategory("testing","testing") must equalTo(0)
+            Task.getTasksCategory("McQuack","testing").length must equalTo(0)
          }
       }
 
       "add task to one particular category" in {
          running(FakeApplication(additionalConfiguration = inMemoryDatabase())){
-            Task.addTaskToCategory("McQuack","testing",1) must equalTo("AÑADIDA")
-         }
-      }
-
-      "throw JbdcSQLException trying to add one task to a category and the user specified doesn't exist" in {
-         running(FakeApplication(additionalConfiguration = inMemoryDatabase())){
-            Task.addTaskToCategory("testing","testing",1) must throwA[JdbcSQLException]
+            Task.addTaskToCategory("Adventure",1) must equalTo("AÑADIDA")
          }
       }
 
       "throw JbdcSQLException trying to add one task to a category that doesn't exist" in {
          running(FakeApplication(additionalConfiguration = inMemoryDatabase())){
-            Task.addTaskToCategory("testing","testing",1) must throwA[JdbcSQLException]
-         }
-      }
-
-      "throw JbdcSQLException trying to add one task to a category that is not vinculated to the user specified" in {
-         running(FakeApplication(additionalConfiguration = inMemoryDatabase())){
-            Task.addTaskToCategory("testing","testing",1) must throwA[JdbcSQLException]
+            Task.addTaskToCategory("testing",1) must throwA[JdbcSQLException]
          }
       }
    }
