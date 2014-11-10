@@ -159,15 +159,15 @@ object Application extends Controller {
 
    // Métodos Feature 4 (CATEGORÍAS)
    def newCategory(login: String, category: String) = Action {
-      Ok
+      BadRequest
    }
 
    def getTasksCategory(login: String, category: String) = Action {
-      Ok
+      BadRequest
    }
 
    def addTaskToCategory(login: String, category: String, id: Long) = Action {
-      Ok
+      BadRequest
    }
 }
 
