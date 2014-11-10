@@ -8,6 +8,7 @@ import play.api.data.Forms._
 
 import models.Task
 import models.User
+import models.Category
 
 import play.api.libs.json._
 import play.api.libs.functional.syntax._
@@ -154,6 +155,110 @@ object Application extends Controller {
       else
       {
          BadRequest
+      }
+   }
+
+   // Métodos Feature 4 (CATEGORÍAS)
+   def newCategory(login: String, category: String) = Action {
+      User.existUser(login) match {
+         case None => NotFound(html_404).as("text/html")
+         case Some(t) => {
+            // Si ya existe la categoria lo que hacemos es vincularla también a otro usuario (case Some(t))
+            Category.existCategory(category) match {
+               case None => {
+                  if(Task.newCategory(login,category) == "CREADA")
+                  {
+                     Ok("CATEGORY " + category + " HAS BEEN CREATED AND VINCULATED TO THE USER NAMED " + login).as("text/html")
+                  }
+                  else
+                  {
+                     Ok("CATEGORY" + category + " HASN'T BEEN CREATED").as("text/html")
+                  }
+               }
+               case Some(t) =>
+               {
+                  if(Category.categoryBelongToUser(category,login) == 0)
+                  {
+                     Task.addCategoryToUser(login,category)
+                     Ok("CATEGORY " + category + " HAS BEEN VINCULATED TO THE USER NAMED " + login).as("text/html")
+                  }
+                  // Si ya existe y está vinculada al usuario facilitado por parámetro, no se hace nada
+                  // y se devuelve un error 400
+                  else
+                  {
+                     BadRequest("CATEGORY " + category + " ALREADY EXISTS AND BELONG TO THE USER NAMED " + login).as("text/html")
+                  }
+               }
+            }
+
+         }
+      }
+   }
+
+   def getTasksCategory(login: String, category: String) = Action {
+      User.existUser(login) match {
+         case None => NotFound(html_404).as("text/html")
+         case Some(t) => {
+            Category.existCategory(category) match {
+               case None => NotFound(html_404).as("text/html")
+               case Some(u) => {
+                  //Comprobamos que la categoria pertenece al usuario especificado por parámetro
+                  if(Category.categoryBelongToUser(category,login) > 0)
+                  {
+                     val json = Json.toJson(Task.getTasksCategory(login,category))
+                     Ok(json)
+                  }
+                  else
+                  {
+                     BadRequest
+                  }
+               }
+            }
+         }
+      }
+   }
+
+   def addTaskToCategory(login: String, category: String, id: Long) = Action {
+      User.existUser(login) match {
+         case None => BadRequest
+         case Some(t) => {
+            //Comprobamos que la tarea pertenece al usuario especificado por parámetro
+            if(Task.taskBelongToUser(id,login) > 0)
+            {
+               Category.existCategory(category) match {
+                  case None => BadRequest
+                  case Some(u) => {
+                     //Comprobamos que la categoria pertenece al usuario especificado por parámetro
+                     if(Category.categoryBelongToUser(category,login) > 0)
+                     {
+                        if(Task.taskBelongToCategory(id,category) > 0)
+                        {
+                           BadRequest("THE TASK NUMBER " + id + " ALREADY BELONGS TO CATEGORY " + category).as("text/html")
+                        }
+                        else
+                        {
+                           if(Task.addTaskToCategory(category,id) == "AÑADIDA")
+                           {
+                              Ok("TASK NUMBER " + id + " HAS BEEN ADDED TO CATEGORY " + category).as("text/html")
+                           }
+                           else
+                           {
+                              Ok("TASK NUMBER " + id + " HASN'T BEEN ADDED TO CATEGORY " + category).as("text/html")
+                           }
+                        }
+                     }
+                     else
+                     {
+                        BadRequest
+                     }
+                  }
+               }
+            }
+            else
+            {
+               BadRequest
+            }
+         }
       }
    }
 }

@@ -62,13 +62,13 @@ class ApplicationSpec extends Specification with JsonMatchers {
         val resultJson: JsValue= contentAsJson(resultTasks)
         //Como quiero contar el número de elementos en el JsValue
         //lo mapeo en un JsArray y verifico su tamaño
-        resultJson.as[JsArray].value.size must equalTo(3)
+        resultJson.as[JsArray].value.size must equalTo(4)
       }
     }
 
     "send 404 on a nonexistent task request" in {
       running(FakeApplication(additionalConfiguration = inMemoryDatabase())) {
-        val Some(result) = route(FakeRequest(GET, "/tasks/4"))
+        val Some(result) = route(FakeRequest(GET, "/tasks/5"))
 
         status(result) must equalTo(NOT_FOUND)
         contentType(result) must beSome.which(_ == "text/html")
@@ -108,9 +108,9 @@ class ApplicationSpec extends Specification with JsonMatchers {
         status(result2) must equalTo(OK)
         contentType(result2) must beSome.which(_ == "application/json")
         val resultJson2: JsValue = contentAsJson(result2)
-        //Hay 3 tareas ya creadas asociadas a mi usuario anónimo.
-        //Como justo antes hemos creado una más, el total es 4
-        resultJson2.as[JsArray].value.size must equalTo(4)
+        //Hay 4 tareas ya creadas asociadas a mi usuario anónimo.
+        //Como justo antes hemos creado una más, el total es 5
+        resultJson2.as[JsArray].value.size must equalTo(5)
       }
     }
 
@@ -170,7 +170,7 @@ class ApplicationSpec extends Specification with JsonMatchers {
 
     "send 404 deleting an nonexistent task" in {
       running(FakeApplication(additionalConfiguration = inMemoryDatabase())) {
-        val Some(result) = route(FakeRequest(DELETE, "/tasks/4"))
+        val Some(result) = route(FakeRequest(DELETE, "/tasks/5"))
 
         status(result) must equalTo(NOT_FOUND)
       }
@@ -187,12 +187,12 @@ class ApplicationSpec extends Specification with JsonMatchers {
         status(result2) must equalTo(OK)
         contentType(result2) must beSome.which(_ == "application/json")
         val resultJson2: JsValue = contentAsJson(result2)
-        /*Hay 3 tareas ya creadas asociadas a mi usuario anónimo.
+        /*Hay 4 tareas ya creadas asociadas a mi usuario anónimo.
         **Como justo antes hemos borrado las que tienen como fecha de finalización 05-11-2014
-        **y solo había una, ahora el total debe ser 2 (iniciamos la base de datos con 3 asociadas
+        **y solo había una, ahora el total debe ser 3 (iniciamos la base de datos con 4 asociadas
         **a nuestro usuario anónimo)
         */
-        resultJson2.as[JsArray].value.size must equalTo(2)
+        resultJson2.as[JsArray].value.size must equalTo(3)
       }
     }
 
@@ -207,11 +207,11 @@ class ApplicationSpec extends Specification with JsonMatchers {
         status(result2) must equalTo(OK)
         contentType(result2) must beSome.which(_ == "application/json")
         val resultJson2: JsValue = contentAsJson(result2)
-        /*Hay 3 tareas ya creadas asociadas a mi usuario anónimo.
+        /*Hay 4 tareas ya creadas asociadas a mi usuario anónimo.
         **Hemos intentado borrar las que tienen como fecha de finalización 0511-2014.
-        **Como no se borra ninguna al ser una petición errónea, el total debe ser 3
+        **Como no se borra ninguna al ser una petición errónea, el total debe ser 4
         */
-        resultJson2.as[JsArray].value.size must equalTo(3)
+        resultJson2.as[JsArray].value.size must equalTo(4)
       }
     }
 
@@ -226,11 +226,11 @@ class ApplicationSpec extends Specification with JsonMatchers {
         status(result2) must equalTo(OK)
         contentType(result2) must beSome.which(_ == "application/json")
         val resultJson2: JsValue = contentAsJson(result2)
-        /*Hay 3 tareas ya creadas asociadas a mi usuario anónimo.
+        /*Hay 4 tareas ya creadas asociadas a mi usuario anónimo.
         **Hemos intentado borrar las que tienen como fecha de finalización 06-11-2014.
-        **Como no hay ninguna, el total debe seguir siendo 3
+        **Como no hay ninguna, el total debe seguir siendo 4
         */
-        resultJson2.as[JsArray].value.size must equalTo(3)
+        resultJson2.as[JsArray].value.size must equalTo(4)
       }
     }
 
@@ -245,12 +245,12 @@ class ApplicationSpec extends Specification with JsonMatchers {
         status(result2) must equalTo(OK)
         contentType(result2) must beSome.which(_ == "application/json")
         val resultJson2: JsValue = contentAsJson(result2)
-        /*Hay 3 tareas ya creadas asociadas a mi usuario anónimo.
+        /*Hay 4 tareas ya creadas asociadas a mi usuario anónimo.
         **Como justo antes hemos borrado las que tienen como fecha de finalización
         **una fecha anterior a 06-11-2014 y solo había una,
-        **ahora el total debe ser 2 (iniciamos la base de datos con 3 asociadas a nuestro usuario anónimo)
+        **ahora el total debe ser 3 (iniciamos la base de datos con 4 asociadas a nuestro usuario anónimo)
         */
-        resultJson2.as[JsArray].value.size must equalTo(2)
+        resultJson2.as[JsArray].value.size must equalTo(3)
       }
     }
 
@@ -265,11 +265,11 @@ class ApplicationSpec extends Specification with JsonMatchers {
         status(result2) must equalTo(OK)
         contentType(result2) must beSome.which(_ == "application/json")
         val resultJson2: JsValue = contentAsJson(result2)
-        /*Hay 3 tareas ya creadas asociadas a mi usuario anónimo.
+        /*Hay 4 tareas ya creadas asociadas a mi usuario anónimo.
         **Hemos intentado borrar las que tienen como fecha de finalización una anterior a 0611-2014.
-        **Como no se borra ninguna al ser una petición errónea, el total debe ser 3
+        **Como no se borra ninguna al ser una petición errónea, el total debe ser 4
         */
-        resultJson2.as[JsArray].value.size must equalTo(3)
+        resultJson2.as[JsArray].value.size must equalTo(4)
       }
     }
 
@@ -284,12 +284,152 @@ class ApplicationSpec extends Specification with JsonMatchers {
         status(result2) must equalTo(OK)
         contentType(result2) must beSome.which(_ == "application/json")
         val resultJson2: JsValue = contentAsJson(result2)
-        /*Hay 3 tareas ya creadas asociadas a mi usuario anónimo.
+        /*Hay 4 tareas ya creadas asociadas a mi usuario anónimo.
         **Hemos intentado borrar las que tienen como fecha de finalización una anterior a 06-11-2014.
-        **Como no hay ninguna, el total debe seguir siendo 3
+        **Como no hay ninguna, el total debe seguir siendo 4
         */
-        resultJson2.as[JsArray].value.size must equalTo(3)
+        resultJson2.as[JsArray].value.size must equalTo(4)
       }
+    }
+
+    // tests de la Feature 4 (CATEGORÍAS)
+    "return OK creating one category" in {
+        running(FakeApplication(additionalConfiguration = inMemoryDatabase())) {
+            val Some(result) = route(FakeRequest(GET, "/McQuack/Compulsory"))
+            status(result) must equalTo(OK)
+        }
+    }
+
+    "send 404 creating one category with a nonexistent user" in {
+        running(FakeApplication(additionalConfiguration = inMemoryDatabase())) {
+            val Some(result) = route(FakeRequest(GET, "/Fake_user/Compulsory"))
+            status(result) must equalTo(NOT_FOUND)
+        }
+    }
+
+    "return OK vinculating one existing category to one user" in {
+        running(FakeApplication(additionalConfiguration = inMemoryDatabase())) {
+            val Some(result) = route(FakeRequest(GET, "/Jonatan/Adventure"))
+            status(result) must equalTo(OK)
+        }
+    }
+
+    "send 400 trying to create or vinculate one existent category to one user who has it vinculate already" in {
+        running(FakeApplication(additionalConfiguration = inMemoryDatabase())) {
+            //La siguiente categoría que vamos a intentar crear/vincular ya
+            //está creada/vinculada
+            val Some(result) = route(FakeRequest(GET, "/McQuack/Adventure"))
+            status(result) must equalTo(BAD_REQUEST)
+        }
+    }
+
+    "return user's tasks list of one category in json format" in {
+        running(FakeApplication(additionalConfiguration = inMemoryDatabase())) {
+            val Some(resultTasks) = route(FakeRequest(GET, "/McQuack/Adventure/tasks"))
+
+            status(resultTasks) must equalTo(OK)
+            contentType(resultTasks) must beSome.which(_ == "application/json")
+
+            /* El resultado de la petición es una colección JSON
+            ** con la lista de tareas de mi usuario anónimo ("McQuack") en la categoría "Adventure"
+            */
+            val resultJson: JsValue= contentAsJson(resultTasks)
+            //Como quiero contar el número de elementos en el JsValue
+            //lo mapeo en un JsArray y verifico su tamaño
+            resultJson.as[JsArray].value.size must equalTo(1)
+        }
+    }
+
+    "send 404 trying to return the user's tasks list of a nonexistent user" in {
+        running(FakeApplication(additionalConfiguration = inMemoryDatabase())) {
+            val Some(resultTasks) = route(FakeRequest(GET, "/Fake_user/Adventure/tasks"))
+
+            status(resultTasks) must equalTo(NOT_FOUND)
+        }
+    }
+
+    "send 404 trying to return the user's tasks list of a nonexistent category" in {
+        running(FakeApplication(additionalConfiguration = inMemoryDatabase())) {
+            val Some(resultTasks) = route(FakeRequest(GET, "/McQuack/Fake_category/tasks"))
+
+            status(resultTasks) must equalTo(NOT_FOUND)
+        }
+    }
+
+    "return 400 trying to return the user's tasks list of a existent user and category that are not vinculated" in {
+        running(FakeApplication(additionalConfiguration = inMemoryDatabase())) {
+            val Some(result) = route(FakeRequest(GET, "/Jonatan/Compulsory"))
+            status(result) must equalTo(OK)
+            val Some(resultTasks) = route(FakeRequest(GET, "/McQuack/Compulsory/tasks"))
+
+            status(resultTasks) must equalTo(BAD_REQUEST)
+        }
+    }
+
+    "return OK and user's tasks list when adding one task to one category" in {
+        running(FakeApplication(additionalConfiguration = inMemoryDatabase())) {
+            val Some(result) = route(FakeRequest(GET, "/McQuack/Adventure/1"))
+            status(result) must equalTo(OK)
+
+            //Comprobación extra para ver si está todo correcto
+            val Some(result2) = route(FakeRequest(GET, "/McQuack/Adventure/tasks"))
+            status(result2) must equalTo(OK)
+            contentType(result2) must beSome.which(_ == "application/json")
+            val resultJson2: JsValue = contentAsJson(result2)
+            /*Hay una tarea ya creada asociada a mi usuario anónimo y a dicha categoría.
+            **Como hemos añadido otra, el total debe ser 2
+            */
+            resultJson2.as[JsArray].value.size must equalTo(2)
+        }
+    }
+
+    "send 400 trying to add one task to one category of a nonexistent user" in {
+        running(FakeApplication(additionalConfiguration = inMemoryDatabase())) {
+            val Some(result) = route(FakeRequest(GET, "/Fake_user/Adventure/1"))
+            status(result) must equalTo(BAD_REQUEST)
+        }
+    }
+
+    "send 400 trying to add one task to a nonexistent category" in {
+        running(FakeApplication(additionalConfiguration = inMemoryDatabase())) {
+            val Some(result) = route(FakeRequest(GET, "/McQuack/Fake_category/1"))
+            status(result) must equalTo(BAD_REQUEST)
+        }
+    }
+
+    "send 400 trying to add one task to one category not linked to this user" in {
+        running(FakeApplication(additionalConfiguration = inMemoryDatabase())) {
+            val Some(result) = route(FakeRequest(GET, "/McQuack/New_category/1"))
+            status(result) must equalTo(BAD_REQUEST)
+        }
+    }
+
+    "send 400 trying to add one task not linked to the specified user" in {
+        running(FakeApplication(additionalConfiguration = inMemoryDatabase())) {
+            route(FakeRequest(POST, "/Jonatan/tasks", FakeHeaders(), Map("label" -> Seq("testing"))))
+            //Hay 4 tareas creadas incialmente. Hemos creado una más justo ahora asociado a otro de
+            //nuestros usuarios por defecto ("Jonatan").
+            //Como no pertenece a al usuario llamado "McQuack", el controlador debe devolver BAD_REQUEST
+            val Some(result) = route(FakeRequest(GET, "/McQuack/Adventure/5"))
+            status(result) must equalTo(BAD_REQUEST)
+        }
+    }
+
+    "send 400 trying to add one task to one category that already belongs to it" in {
+        running(FakeApplication(additionalConfiguration = inMemoryDatabase())) {
+            val Some(result) = route(FakeRequest(GET, "/McQuack/Adventure/4"))
+            status(result) must equalTo(BAD_REQUEST)
+
+            //Comprobación extra para ver si está todo correcto
+            val Some(result2) = route(FakeRequest(GET, "/McQuack/Adventure/tasks"))
+            status(result2) must equalTo(OK)
+            contentType(result2) must beSome.which(_ == "application/json")
+            val resultJson2: JsValue = contentAsJson(result2)
+            /*Hay una tarea ya creada asociada a mi usuario anónimo y a dicha categoría.
+            **Como no hemos añadido otra, el total debe seguir siendo 1
+            */
+            resultJson2.as[JsArray].value.size must equalTo(1)
+        }
     }
   }
 }
