@@ -1,5 +1,3 @@
-package test
-
 import org.specs2.mutable._
 import org.specs2.runner._
 import org.junit.runner._
@@ -168,6 +166,61 @@ class TaskSpec extends Specification {
       "try to delete tasks with date with a previous date" in {
          running(FakeApplication(additionalConfiguration = inMemoryDatabase())){
             Task.deleteTasksUserBeforeDate("McQuack",correctDate) must equalTo(0)
+         }
+      }
+
+      // tests de la Feature 4 (CATEGORÍAS)
+      "create category of an existent user" in {
+         running(FakeApplication(additionalConfiguration = inMemoryDatabase())){
+            Task.newCategory("McQuack","testing") must equalTo("CREADA")
+         }
+      }
+
+      "throw JbdcSQLException in a category creation of a nonexistent user" in {
+         running(FakeApplication(additionalConfiguration = inMemoryDatabase())){
+            Task.newCategory("testing","testing") must throwA[JdbcSQLException]
+         }
+      }
+
+      "return user's tasks list of one category" in {
+         running(FakeApplication(additionalConfiguration = inMemoryDatabase())){
+            Task.getTasksCategory("testing","testing") must equalTo(1)
+         }
+      }
+
+      "return user's tasks list empty of one category because the user doesn't exist" in {
+         running(FakeApplication(additionalConfiguration = inMemoryDatabase())){
+            Task.getTasksCategory("testing","testing") must equalTo(0)
+         }
+      }
+
+      "return user's tasks list empty of one category because the category doesn't exist" in {
+         running(FakeApplication(additionalConfiguration = inMemoryDatabase())){
+            Task.getTasksCategory("testing","testing") must equalTo(0)
+         }
+      }
+
+      "add task to one particular category" in {
+         running(FakeApplication(additionalConfiguration = inMemoryDatabase())){
+            Task.addTaskToCategory("testing","testing",1) must equalTo("AÑADIDA")
+         }
+      }
+
+      "throw JbdcSQLException trying to add one task to a category and the user specified doesn't exist" in {
+         running(FakeApplication(additionalConfiguration = inMemoryDatabase())){
+            Task.addTaskToCategory("testing","testing",1) must throwA[JdbcSQLException]
+         }
+      }
+
+      "throw JbdcSQLException trying to add one task to a category that doesn't exist" in {
+         running(FakeApplication(additionalConfiguration = inMemoryDatabase())){
+            Task.addTaskToCategory("testing","testing",1) must throwA[JdbcSQLException]
+         }
+      }
+
+      "throw JbdcSQLException trying to add one task to a category that is not vinculated to the user specified" in {
+         running(FakeApplication(additionalConfiguration = inMemoryDatabase())){
+            Task.addTaskToCategory("testing","testing",1) must throwA[JdbcSQLException]
          }
       }
    }

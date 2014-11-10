@@ -103,5 +103,17 @@ object Task {
 
    def deleteTasksUserBeforeDate(login: String, date_to_delete: Option[Date]): Long = {
       DB.withConnection {implicit c => SQL("delete from task where deadline < {date_to_delete} and author_login  = {login}").on('date_to_delete -> date_to_delete).on('login -> login)executeUpdate()}
-   }   
+   }
+
+   def newCategory(login: String, category: String): String = {
+      return ""
+   }
+
+   def getTasksCategory(login: String, category: String): String = {
+      return ""
+   }
+
+   def addTaskToCategory(login:String, category: String, id: Long): String = {
+      return ""
+   }
 }

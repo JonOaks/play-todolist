@@ -156,6 +156,19 @@ object Application extends Controller {
          BadRequest
       }
    }
+
+   // Métodos Feature 4 (CATEGORÍAS)
+   def newCategory(login: String, category: String) = Action {
+      Ok
+   }
+
+   def getTasksCategory(login: String, category: String) = Action {
+      Ok
+   }
+
+   def addTaskToCategory(login: String, category: String, id: Long) = Action {
+      Ok
+   }
 }
 
 
