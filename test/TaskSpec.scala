@@ -170,18 +170,6 @@ class TaskSpec extends Specification {
       }
 
       // tests de la Feature 4 (CATEGORÍAS)
-      "create category of an existent user" in {
-         running(FakeApplication(additionalConfiguration = inMemoryDatabase())){
-            Task.newCategory("McQuack","testing") must equalTo("CREADA")
-         }
-      }
-
-      "throw JbdcSQLException in a category creation of a nonexistent user" in {
-         running(FakeApplication(additionalConfiguration = inMemoryDatabase())){
-            Task.newCategory("testing","testing") must throwA[JdbcSQLException]
-         }
-      }
-
       "return user's tasks list of one category" in {
          running(FakeApplication(additionalConfiguration = inMemoryDatabase())){
             Task.getTasksCategory("McQuack","Adventure").length must equalTo(1)
@@ -197,18 +185,6 @@ class TaskSpec extends Specification {
       "return user's tasks list empty of one category because the category doesn't exist" in {
          running(FakeApplication(additionalConfiguration = inMemoryDatabase())){
             Task.getTasksCategory("McQuack","testing").length must equalTo(0)
-         }
-      }
-
-      "add task to one particular category" in {
-         running(FakeApplication(additionalConfiguration = inMemoryDatabase())){
-            Task.addTaskToCategory("Adventure",1) must equalTo("AÑADIDA")
-         }
-      }
-
-      "throw JbdcSQLException trying to add one task to a category that doesn't exist" in {
-         running(FakeApplication(additionalConfiguration = inMemoryDatabase())){
-            Task.addTaskToCategory("testing",1) must throwA[JdbcSQLException]
          }
       }
    }

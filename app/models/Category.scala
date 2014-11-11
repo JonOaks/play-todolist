@@ -31,4 +31,21 @@ object Category {
 
       return cantidad
    }
+
+   def newCategory(login: String, category: String): String = {
+      var newid = 0L
+      DB.withConnection {implicit c => newid = SQL("insert into category (category) values ({category})").on('category -> category).executeInsert().get
+      }
+      DB.withConnection {implicit c => newid = SQL("insert into user_category (login,category) values ({login},{category})").on('login -> login).on('category -> category).executeInsert().get
+      }
+      return "CREADA"
+   }
+
+   def addTaskToCategory(category: String, id: Long): String = {
+      // la comprobación de si el usuario tiene la categoría pasada por parámetro asociada a él
+      // la hacemos en el controlador
+      DB.withConnection {implicit c => SQL("insert into task_category (task_id,category) values ({id},{category})").on('id -> id).on('category -> category).executeInsert().get
+      }
+      return "AÑADIDA"
+   }
 }

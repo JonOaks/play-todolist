@@ -166,7 +166,7 @@ object Application extends Controller {
             // Si ya existe la categoria lo que hacemos es vincularla también a otro usuario (case Some(t))
             Category.existCategory(category) match {
                case None => {
-                  if(Task.newCategory(login,category) == "CREADA")
+                  if(Category.newCategory(login,category) == "CREADA")
                   {
                      Ok("CATEGORY " + category + " HAS BEEN CREATED AND VINCULATED TO THE USER NAMED " + login).as("text/html")
                   }
@@ -179,7 +179,7 @@ object Application extends Controller {
                {
                   if(Category.categoryBelongToUser(category,login) == 0)
                   {
-                     Task.addCategoryToUser(login,category)
+                     User.addCategoryToUser(login,category)
                      Ok("CATEGORY " + category + " HAS BEEN VINCULATED TO THE USER NAMED " + login).as("text/html")
                   }
                   // Si ya existe y está vinculada al usuario facilitado por parámetro, no se hace nada
@@ -237,7 +237,7 @@ object Application extends Controller {
                         }
                         else
                         {
-                           if(Task.addTaskToCategory(category,id) == "AÑADIDA")
+                           if(Category.addTaskToCategory(category,id) == "AÑADIDA")
                            {
                               Ok("TASK NUMBER " + id + " HAS BEEN ADDED TO CATEGORY " + category).as("text/html")
                            }
