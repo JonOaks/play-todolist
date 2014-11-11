@@ -283,7 +283,23 @@ Y los tests asociados al borrado que se realizan en las funcionalidades "especia
 
 Nueva feature usando TDD(Categorías)
 ----
+####Crear o vincular una categoría
+```
+GET      /:login/:category             controllers.Application.newCategory(login: String, category: String)
+```
+Si la categoría no existe, la crea y la vincula al usuario de la url, siempre y cuando este exista. Si ya existe y no esta vinculada al usuario pasado por url, la vincula a dicho usuario. Si ya existe y ya está vinculada al usuario pasado por url, no hace nada. 
 
+```
+GET      /:login/:category/tasks       controllers.Application.getTasksCategory(login: String, category: String)
+```
+Lista todas las tareas creadas por el usuario pasado por url que están dentro de la categoría pasada por url.
+
+```
+GET      /:login/:category/$id<[0-9]+> controllers.Application.addTaskToCategory(login: String, category: String, id: Long)
+```
+Asocia una tarea, siempre y cuando esta exista y la haya creado el usuario pasado por url, a la categoría pasada por la url, de nuevo, si esta existe.
+
+######Explicación
 Hemos añadido una nueva característica usando TDD: **categorías**. Hemos ampliado el API para que se puedan crear categorías asociadas a un usuario y que se puedan añadir, modificar y listar las tareas de un usuario dentro de una determinada categoría.
 
 Lo primero que hemos hecho ha sido crear una nueva evolución en la que hemos creado tres tablas, una para almacenar las categorías y dos más que representan las relaciones "muchos a muchos" existentes entre categoría y tarea y entre categoría y usuario, y hemos hecho algunas inserciones para probar la nueva funcionalidad.
