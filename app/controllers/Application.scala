@@ -64,6 +64,13 @@ object Application extends Controller {
       }
    }
 
+   def getTaskUser(login: String, id: Long) = Action {
+      Task.taskUser(login,id) match {
+         case None => NotFound(html_404).as("text/html")
+         case Some(t) => Ok(Json.toJson(t))
+      }
+   }
+
    def deleteTask(id: Long) = Action {
       if(Task.delete(id) > 0)
       {

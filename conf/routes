@@ -13,6 +13,7 @@ GET      /tasks/$id<[0-9]+>            controllers.Application.getTask(id: Long)
 
 GET      /:login/tasks                 controllers.Application.getTasksUser(login: String)
 POST     /:login/tasks                 controllers.Application.newTaskUser(login: String)
+GET      /:login/tasks/$id<[0-9]+>     controllers.Application.getTaskUser(login: String, id: Long)
 
 GET      /tasks/:date                  controllers.Application.deleteTasksSameDate(date: String)
 GET      /:login/tasks/:date           controllers.Application.deleteTasksUserBeforeDate(login: String, date: String)

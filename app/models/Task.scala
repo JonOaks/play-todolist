@@ -76,6 +76,10 @@ object Task {
       implicit c => SQL("select * from task where id = {id}").on('id -> id).as(task.singleOpt)
    }
 
+   def taskUser(login: String, id: Long): Option[Task] = DB.withConnection{
+      implicit c => SQL("select * from task where id = {id} and author_login = {login}").on('id -> id).on('login -> login).as(task.singleOpt)
+   }
+
    def tasks(login: String): List[Task] = DB.withConnection{
       implicit c => SQL("select * from task where author_login = {login}").on('login -> login).as(task *)
    }

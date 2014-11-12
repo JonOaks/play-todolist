@@ -48,6 +48,20 @@ class TaskSpec extends Specification {
          }
       }
 
+      "return user's task" in {
+         running(FakeApplication(additionalConfiguration = inMemoryDatabase())){
+            val task = Task.taskUser("McQuack",1)
+            task must beSome
+         }
+      }
+
+      "not return user's task" in {
+         running(FakeApplication(additionalConfiguration = inMemoryDatabase())){
+            val task = Task.taskUser("Fake_user",5)
+            task must beNone
+         }
+      }
+
       "create task without user and date" in {
          running(FakeApplication(additionalConfiguration = inMemoryDatabase())){
             val task = Task.create("task")

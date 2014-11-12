@@ -49,6 +49,23 @@ class ApplicationSpec extends Specification with JsonMatchers {
       }
     }
 
+    "return user's task in json format" in {
+      running(FakeApplication(additionalConfiguration = inMemoryDatabase())) {
+        val task = Task.createWithUser("prueba","McQuack")
+        val Some(resultTask) = route(FakeRequest(GET, "/McQuack/tasks/"+task.id))
+ 
+        status(resultTask) must equalTo(OK)
+        contentType(resultTask) must beSome.which(_ == "application/json")
+ 
+        val resultJson: JsValue = contentAsJson(resultTask)
+        val resultString = Json.stringify(resultJson) 
+ 
+        resultString must /("id" -> task.id)
+        resultString must /("label" -> "prueba")
+        resultString must /("deadline" -> "")
+      }
+    }
+
     "return anonymous user tasks in json format" in {
       running(FakeApplication(additionalConfiguration = inMemoryDatabase())) {
         val Some(resultTasks) = route(FakeRequest(GET, "/tasks"))
@@ -69,6 +86,15 @@ class ApplicationSpec extends Specification with JsonMatchers {
     "send 404 on a nonexistent task request" in {
       running(FakeApplication(additionalConfiguration = inMemoryDatabase())) {
         val Some(result) = route(FakeRequest(GET, "/tasks/5"))
+
+        status(result) must equalTo(NOT_FOUND)
+        contentType(result) must beSome.which(_ == "text/html")
+      }
+    }
+
+    "send 404 on a nonexistent user's task request" in {
+      running(FakeApplication(additionalConfiguration = inMemoryDatabase())) {
+        val Some(result) = route(FakeRequest(GET, "/Fake_user/tasks/5"))
 
         status(result) must equalTo(NOT_FOUND)
         contentType(result) must beSome.which(_ == "text/html")
